@@ -1,0 +1,26 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  RewriteCond %{REQUEST_URI} ^.*static/(.*)
+  RewriteRule ^(.*)$ frontend/build/static/%1 [END]
+
+  RewriteCond %{REQUEST_URI} ^.*manifest.json
+  RewriteRule ^(.*)$ frontend/build/manifest.json [END]
+
+  RewriteCond %{REQUEST_URI} ^.*logo192
+  RewriteRule ^(.*)$ frontend/build/logo192.png [END]
+
+  RewriteCond %{REQUEST_URI} ^.*favicon
+  RewriteRule ^(.*)$ frontend/public/favicon.ico [END]
+
+
+  SetEnv JWT_TOKEN_SECRET SDr45j8dY4KJADCh
+  # Ha a public mappában lévő fájlra érkezett a kérés, szolgáld ki a fájlt
+  RewriteCond %{REQUEST_URI} ^.*public/(.*)
+  RewriteRule ^(.*)$ backend/public/%1 [END]
+
+  # Minden más esetben az index.php-t futtasd le
+  RewriteRule (.*) index.php [QSA]
+  # Minden más esetben az index.php-t futtasd le
+  RewriteRule (.*)  backend/index.php [QSA]
+</IfModule>

@@ -1,7 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import logo from '../logo.svg';
+import axios from 'axios';
 
-const Welcome = () => {
+const Main = () => {
+  
+  useEffect(() => {
+    axios.get('/token').then(res => console.log(res.data));
+  }, [])
+  
   return (
     <div className="App">
       <header className="App-header">
@@ -22,4 +28,4 @@ const Welcome = () => {
   )
 }
 
-export default Welcome
+export default Main

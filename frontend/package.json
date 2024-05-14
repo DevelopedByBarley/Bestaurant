@@ -15,6 +15,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.0",
     "react-scripts": "5.0.1",
+    "react-tailwindcss-datepicker": "^1.6.6",
     "react-toastify": "^10.0.5",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
@@ -25,6 +26,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "proxy": "http://localhost:8080/",
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -42,5 +44,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.3"
   }
 }

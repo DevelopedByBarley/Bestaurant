@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+
+.input-field {
+  border-bottom: 2px solid #4F46E5; /* Alapértelmezett alsó border */
+  margin-bottom: 1rem; /* Margó az elemek között */
+  padding: 0.5rem; /* Belső tér a beviteli mező körül */
+}

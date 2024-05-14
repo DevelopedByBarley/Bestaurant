@@ -10,7 +10,15 @@ const MainLayout = () => {
       {/* <Navbar /> */}
       <Outlet />
       {/*  <Footer /> */}
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"
+        autoClose={2500}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        />
     </>
   )
 }

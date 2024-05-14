@@ -139,6 +139,7 @@ class Model
       return $result;
     } catch (\Throwable $th) {
       var_dump($th);
+      return false;
     }
   }
 

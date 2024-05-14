@@ -12,10 +12,21 @@ class CSFRToken
   }
 
   public function token() {
+    if (session_id() == '') {
+      session_start();
+    }
+
+    // Generálunk egy véletlenszerű token-t
     $token = bin2hex(random_bytes(32)); // Erősebb véletlenszerű token generálás
+
+    // Kódoljuk a token-t a titkos kulcs segítségével
     $encodedToken = hash_hmac('sha256', $token,  $this->secretKey);
-    return $encodedToken;
-  
+
+    $_SESSION['csrf'] = $encodedToken;
+
+
+    // Tároljuk el a kódolt token-t a session-ben
+    return $token;
   }
 
   public function generate()
@@ -53,6 +64,7 @@ class CSFRToken
     $token = hash_hmac('sha256', $_POST['csrf'], $this->secretKey);
    
     if (!hash_equals($_SESSION['csrf'], $token)) {
+
       header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
       exit;
     }
@@ -69,19 +81,17 @@ class CSFRToken
 
   private function isSafeOrigin()
   {
-    // Az elfogadható eredetek listája
-    $safeOrigins = array('http://localhost:8080','http://localhost:9090' );
+      // Az elfogadható eredetek listája
+      $safeOrigins = array('http://localhost:8080', 'http://localhost:9090', 'http://localhost:3000');
 
-    // Ellenőrizzük az Origin fejlécet
-    if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $safeOrigins)) {
-      return true;
-    }
+      // Ellenőrizzük az Origin fejlécet
+      if (isset($_SERVER['HTTP_ORIGIN'])) {
+          $origin = rtrim($_SERVER['HTTP_ORIGIN'], '/');
+          if (in_array($origin, $safeOrigins)) {
+              return true;
+          }
+      }
 
-    // Ellenőrizzük a Referer fejlécet (opcionális)
-    // if (isset($_SERVER['HTTP_REFERER']) && in_array(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST), $safeOrigins)) {
-    //   return true;
-    // }
-
-    return false;
+      return false;
   }
 }

@@ -6,11 +6,8 @@ const CSFR = () => {
   useEffect(() => {
     axios.get('/token').then(res => setToken(res.headers['x-csrf-token']))
   }, []);
-  return (
-    <div>
-      <input type="hidden" name="csrf" value={token} />
-    </div>
-  )
+  return <input type="hidden" name="csrf" value={token} />
+  
 }
 
 export default CSFR

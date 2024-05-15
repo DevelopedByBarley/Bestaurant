@@ -51,7 +51,7 @@ class Controller
     header('X-CSRF-Token: ' . $this->CSFRToken->token());
   }
 
-  public function index()
+  public function render()
   {
     echo $this->Render->write("public/Layout.php", [
       "content" => $this->Render->write("../../../frontend/build/index.html", [ ])

@@ -6,13 +6,15 @@ type TimeListItemType = {
   date: DateType;
   from: string;
   to: string;
+  setPage: Dispatch<SetStateAction<number>>
+  selectedReservationDateRange: { from: string; to: string; } | null;
   setSelectedReservationDateRange: Dispatch<SetStateAction<{ from: string; to: string; } | null>>
 }
 
-const TimeListItem = ({ index, date, from, to, setSelectedReservationDateRange }: TimeListItemType) => {
+const TimeListItem = ({ index, date, from, to, selectedReservationDateRange, setSelectedReservationDateRange }: TimeListItemType) => {
 
   const handleDateChange = (from: string, to: string) => {
-    setSelectedReservationDateRange ({ from, to });
+    setSelectedReservationDateRange({ from, to });
   };
   return (
     <div>
@@ -25,11 +27,12 @@ const TimeListItem = ({ index, date, from, to, setSelectedReservationDateRange }
           className="hidden peer"
           onClick={() => handleDateChange(from, to)}
           disabled={date.isReserved}
+          checked={selectedReservationDateRange && selectedReservationDateRange.from === from ? true : false}
           required
         />
         <label
           htmlFor={`date-${index}`}
-          className={`${date.isReserved ? 'bg-gray-300 hover:bg-gray-300' : ''} inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700`}
+          className={`${date.isReserved ? 'bg-gray-400 hover:bg-gray-400 text-gray-100 hover:text-gray-100 cursor-default' : ''} inline-flex items-center justify-between w-full p-5 text-gray-500 border border-gray-200 cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700`}
         >
           <div className="block w-full">
             <div className="*:text-lg font-semibold text-center">{date.isReserved ? <s>{from}</s> : <>{from}</>}</div>

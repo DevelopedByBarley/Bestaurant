@@ -4,7 +4,7 @@ $count_of_reservations = $params['count_of_reservations'] ?? null;
 
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-secondary fixed-top pr-font" id="navbar">
-  <div class="container-fluid">
+  <div class="container-fluid bg-red-500">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>

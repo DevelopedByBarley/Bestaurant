@@ -41,8 +41,8 @@ class Admin extends Model
         return false;
       }
 
-      $_SESSION["adminId"] = $admin["adminId"];
-      return true;
+      
+      return $admin;
     } catch (PDOException $e) {
       echo "An error occurred during the database operation: " . $e->getMessage();
       exit;

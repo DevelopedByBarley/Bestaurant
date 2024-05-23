@@ -16,6 +16,8 @@ class ReservationController extends Controller
   }
 
 
+
+
   public function getReservations()
   {
     self::initializePOST();
@@ -63,11 +65,5 @@ class ReservationController extends Controller
         'data' => null
       ]);
     }
-  }
-
-
-  private function initializePOST()
-  {
-    $_POST = json_decode(file_get_contents('php://input'), true);
   }
 }

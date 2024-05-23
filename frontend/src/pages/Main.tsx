@@ -1,28 +1,28 @@
-import React, { useContext, useEffect } from 'react'
-import axios from 'axios';
+import  { useContext } from 'react'
 import Reservation from './Reservation';
 import { ModalContext } from '../context/ModalContext';
+import Header from '../components/Header';
 
 const Main = () => {
 
   const { modal } = useContext(ModalContext);
 
-  useEffect(() => {
-    axios.get('/token').then(res => console.log(res.data));
-  }, [])
-
-  console.log(modal);
 
 
 
 
   return (
-    <>
-      <div className="bg-red-100 h-screen">
+    <div className='relative'>
+      <div className="h-screen">
         {modal && <Reservation />}
+        <section>
+          <Header />
+        </section>
       </div>
-      <div className="h-screen"></div>
-    </>
+      <div className="h-screen" id='story'>
+          
+      </div>
+    </div>
   )
 }
 

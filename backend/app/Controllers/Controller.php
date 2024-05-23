@@ -11,6 +11,7 @@ use App\Helpers\Toast;
 use App\Helpers\UUID;
 use App\Helpers\XLSX;
 use App\Models\Model;
+use App\Services\AuthService;
 use App\Services\LanguageService;
 
 class Controller
@@ -30,7 +31,7 @@ class Controller
   {
     $this->Model = new Model();
     $this->Debug = new Debug();
-    $this->Auth = new Authenticate();
+    $this->Auth = new AuthService();
     $this->Render = new Render();
     $this->XLSX = new XLSX();
     $this->UUID = new UUID();
@@ -80,6 +81,11 @@ class Controller
       header("Location: $failed_url");
       exit;
     }
+  }
+
+  public function initializePOST()
+  {
+    $_POST = json_decode(file_get_contents('php://input'), true);
   }
 
 }

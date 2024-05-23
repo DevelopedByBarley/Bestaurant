@@ -69,6 +69,7 @@ class Model
 
     // Visszatérés a lapozott eredményekkel és egyéb adatokkal
     return [
+      "status" => true,
       "data" => $pagedResults,
       "numOfPage" => $numOfPage,
       "limit" => $limit

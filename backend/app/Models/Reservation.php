@@ -4,11 +4,191 @@ namespace App\Models;
 
 
 use App\Models\Model;
+use InvalidArgumentException;
 use PDO;
 use PDOException;
+use RuntimeException;
 
 class Reservation extends Model
 {
+  public function delete($reservationId)
+  {
+    try {
+      $stmt = $this->Pdo->prepare("DELETE FROM reservations WHERE `reservations`.`id` = :reservationId");
+      $stmt->bindParam(":reservationId", $reservationId, PDO::PARAM_STR);
+      $isAccepted = $stmt->execute();
+
+
+      if ($isAccepted) {
+        return [
+          'status' => true,
+          'message' => 'Foglalás visszavonva!',
+          'dev' => 'Reservation cancelled successfully!',
+          'data' => $reservationId
+        ];
+      }
+    } catch (\Throwable $th) {
+      return [
+        'status' => false,
+        'message' => 'Foglalás visszavonásában hiba történt!',
+        'dev' => $th,
+        'data' => null
+      ];
+    }
+  }
+
+
+  public function cancel($body, $reservationId)
+  {
+    $message = isset($body['message']) ? filter_var($body['message'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+
+    try {
+      $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
+
+      $stmt = $this->Pdo->prepare("DELETE FROM reservations WHERE `reservations`.`id` = :reservationId");
+      $stmt->bindParam(":reservationId", $reservationId, PDO::PARAM_STR);
+      $isAccepted = $stmt->execute();
+
+
+
+      if ($isAccepted) {
+        $this->Mailer->renderAndSend(
+          'CancelReservation',
+          [
+            'name' => $reservation['name'],
+            'message' => $message,
+            'date' => $reservation['date'],
+            'start' => $reservation['start'],
+            'end' => $reservation['end']
+          ],
+          $reservation['email'],
+          'Foglalás lemondva'
+        );
+
+        return [
+          'status' => true,
+          'message' => 'Foglalás visszavonva!',
+          'dev' => 'Reservation cancelled successfully!',
+          'data' => $reservationId
+        ];
+      }
+    } catch (\Throwable $th) {
+      return [
+        'status' => false,
+        'message' => 'Foglalás visszavonásában hiba történt!',
+        'dev' => $th,
+        'data' => null
+      ];
+    }
+  }
+
+  public function accept($reservationId)
+  {
+    try {
+      $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
+      $stmt = $this->Pdo->prepare("UPDATE `reservations` SET `isAccepted` = '1' WHERE `id` = :reservationId");
+      $stmt->bindParam(':reservationId', $reservationId, PDO::PARAM_INT);
+      $isAccepted = $stmt->execute();
+
+
+      $this->Mailer->renderAndSend(
+        'AcceptReservation',
+        [
+          'name' => $reservation['name'],
+          'date' => $reservation['date'],
+          'start' => $reservation['start'],
+          'end' => $reservation['end']
+        ],
+        $reservation['email'],
+        'Foglalás elfogadva'
+      );
+
+      if ($isAccepted) {
+        return [
+          'status' => true,
+          'message' => 'Foglalás elfogadva!',
+          'dev' => 'Reservation accepted successfully!',
+          'data' => $reservationId
+        ];
+      }
+    } catch (\Throwable $th) {
+      return [
+        'status' => false,
+        'message' => 'Foglalás elfogadásában hiba történt!',
+        'dev' => $th,
+        'data' => null
+      ];
+    }
+  }
+
+  public function getAllReservationsByMultipleQuery($date, $entity, $searched, $sort, $order)
+  {
+    // Alapértelmezett keresési feltétel beállítása
+    $date = $date ?? '';
+    $search = $searched ?? '';
+    $entity = $entity ?? '';
+
+    // Engedélyezett oszlopnevek és sorrendezési irányok
+    $allowedEntities = ['id', 'start', 'numOfGuests', 'isAccepted', 'name', 'email', 'phone']; // Példa engedélyezett oszlopokra
+    $allowedSortColumns = ['id', 'start', 'name', 'numOfGuests', 'isAccepted', 'date']; // Példa engedélyezett sorrendezési oszlopokra
+    $allowedOrderDirections = ['ASC', 'DESC'];
+
+    // Ellenőrizzük az entitás, a sorrendezési oszlop és az irány érvényességét
+    if (($entity && !in_array($entity, $allowedEntities)) || ($sort && !in_array($sort, $allowedSortColumns)) || ($order && !in_array(strtoupper($order), $allowedOrderDirections))) {
+      throw new InvalidArgumentException("Érvénytelen lekérdezési paraméterek.");
+    }
+
+    try {
+      $datePattern = "%" . $date . "%";
+      $searchedPattern = "%" . $search . "%";
+
+      // Alap SQL lekérdezés
+      $sql = "SELECT * FROM `reservations` WHERE `date` LIKE :date";
+
+      // Dinamikusan hozzáadjuk a WHERE feltételeket ha vannak
+      if ($entity) {
+        $sql .= " AND `$entity` LIKE :searched";
+      }
+
+      // Dinamikusan hozzáadjuk a ORDER BY feltételeket ha vannak
+      if ($sort && $order) {
+        $sql .= " ORDER BY `$sort` $order";
+      }
+
+      $stmt = $this->Pdo->prepare($sql);
+      $stmt->bindParam(":date", $datePattern, PDO::PARAM_STR);
+      if ($entity) {
+        $stmt->bindParam(":searched", $searchedPattern, PDO::PARAM_STR);
+      }
+      $stmt->execute();
+      $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $data;
+    } catch (PDOException $e) {
+      // Hibakezelés
+      error_log($e->getMessage());
+      throw new RuntimeException("Adatbázis hiba történt.");
+    }
+  }
+
+
+
+
+  public function getAllReservationsWithoutAccept()
+  {
+    try {
+      $stmt = $this->Pdo->prepare("SELECT * FROM `reservations` WHERE isAccepted = 0");
+      $stmt->execute();
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $results;
+    } catch (PDOException  $e) {
+
+      echo "An error occurred during the database operation:" . $e->getMessage();
+      return false;
+    }
+  }
+
 
   public function new()
   {
@@ -18,23 +198,22 @@ class Reservation extends Model
       $end = isset($_POST['end']) ? filter_var($_POST['end'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $numOfGuests = isset($_POST['numOfGuests']) ? filter_var($_POST['numOfGuests'], FILTER_VALIDATE_INT) : 0;
       $interval = isset($_POST['interval']) ? filter_var($_POST['interval'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
-      $firstName = isset($_POST['firstName']) ? filter_var($_POST['firstName'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
-      $lastName = isset($_POST['lastName']) ? filter_var($_POST['lastName'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+      $name = isset($_POST['name']) ? filter_var($_POST['name'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $phone = isset($_POST['phone']) ? filter_var($_POST['phone'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $request = isset($_POST['request']) ? filter_var($_POST['request'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $email = isset($_POST['email']) ? filter_var($_POST['email'], FILTER_SANITIZE_EMAIL) : '';
+
       $isAccepted = 0;
 
-      $stmt = $this->Pdo->prepare("INSERT INTO `reservations` (`id`, `date`, `start`, `end`, `numOfGuests`, `intervalValue`, `firstName`, `lastName`, `phone`, `request`, `email`, `isAccepted`, `createdAt`) 
-          VALUES (NULL, :date, :start, :end, :numOfGuests, :intervalValue, :firstName, :lastName, :phone, :request, :email, :isAccepted, current_timestamp())");
+      $stmt = $this->Pdo->prepare("INSERT INTO `reservations` (`id`, `date`, `start`, `end`, `numOfGuests`, `intervalValue`, `name`, `phone`, `request`, `email`, `isAccepted`, `createdAt`) 
+          VALUES (NULL, :date, :start, :end, :numOfGuests, :intervalValue, :name, :phone, :request, :email, :isAccepted, current_timestamp())");
 
       $stmt->bindParam(':date', $date, PDO::PARAM_STR);
       $stmt->bindParam(':start', $start, PDO::PARAM_STR);
       $stmt->bindParam(':end', $end, PDO::PARAM_STR);
       $stmt->bindParam(':numOfGuests', $numOfGuests, PDO::PARAM_INT);
       $stmt->bindParam(':intervalValue', $interval, PDO::PARAM_INT);
-      $stmt->bindParam(':firstName', $firstName, PDO::PARAM_STR);
-      $stmt->bindParam(':lastName', $lastName, PDO::PARAM_STR);
+      $stmt->bindParam(':name', $name, PDO::PARAM_STR);
       $stmt->bindParam(':phone', $phone, PDO::PARAM_STR);
       $stmt->bindParam(':request', $request, PDO::PARAM_STR);
       $stmt->bindParam(':email', $email, PDO::PARAM_STR);
@@ -190,21 +369,5 @@ class Reservation extends Model
 
 
     return $free_intervals;
-  }
-
-
-  public function getAllReservationsWithoutAccept()
-  {
-    try {
-      $stmt = $this->Pdo->prepare("SELECT * FROM `reservations` WHERE isAccepted = 0");
-      $stmt->execute();
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-      return $results;
-    } catch (PDOException  $e) {
-
-      echo "An error occurred during the database operation:" . $e->getMessage();
-      return false;
-    }
   }
 }

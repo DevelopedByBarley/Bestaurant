@@ -55,8 +55,10 @@ class CSFRToken
     }
 
 
-    if (!isset($_POST['csrf'])) {
-      header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request');
+
+
+    if (!isset($_POST['csrf']) || !isset($_SESSION['csrf'])) {
+      http_response_code(401);
       exit;
     }
 
@@ -64,7 +66,6 @@ class CSFRToken
     $token = hash_hmac('sha256', $_POST['csrf'], $this->secretKey);
    
     if (!hash_equals($_SESSION['csrf'], $token)) {
-
       header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
       exit;
     }

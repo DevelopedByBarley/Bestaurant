@@ -27,7 +27,7 @@ class AdminController extends Controller
   }
 
 
-  public function loginPage()
+  /*   public function loginPage()
   {
     session_start();
 
@@ -45,60 +45,105 @@ class AdminController extends Controller
       ])
     ]);
   }
+ */
+
+  public function acceptReservation($vars)
+  {
+    self::initializePOST();
+    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+
+    $id = $vars['id'];
+    $acceptedReservation = $this->Reservation->accept($id);
+    $isSuccess = $acceptedReservation['status'];
+    if ($isSuccess) {
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'message' => $acceptedReservation['message'] ?? 'Fail',
+        'dev' => $acceptedReservation['dev'] ?? 'Fail',
+        'data' => $acceptedReservation['data']
+      ]);
+    } else {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'message' => $acceptedReservation['message'] ?? 'Fail',
+        'dev' => $acceptedReservation['dev'] ?? 'Fail',
+        'data' => null
+      ]);
+    }
+  }
+
+  public function cancelReservation($vars) {
+    self::initializePOST();
+    $this->CSFRToken->check();
+    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+
+    $id = $vars['id'];
+
+    $cancelled = $this->Reservation->cancel($_POST, $id);
+  }
+  public function deleteReservation($vars) {
+    self::initializePOST();
+    $this->CSFRToken->check();
+    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+
+    $id = $vars['id'];
+
+    $cancelled = $this->Reservation->delete($id);
+  }
 
 
 
   function validateDate($date, $format = 'Y-m-d')
   {
-    $d = DateTime::createFromFormat($format, $date);
-    return $d && $d->format($format) === $date;
+    if ($date) {
+      $d = DateTime::createFromFormat($format, $date);
+      return $d && $d->format($format) === $date;
+    }
   }
 
   public function reservations()
   {
-    $this->Auth->checkUserIsLoggedInOrRedirect('adminId', '/');
-    $today = date("Y-m-d", time());
-    $search = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_SPECIAL_CHARS) ?? $today;
+    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+
+    $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_SPECIAL_CHARS);
+    $sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
+    $order = filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS);
+    $category = filter_input(INPUT_GET, 'category', FILTER_SANITIZE_SPECIAL_CHARS);
+    $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
 
 
-    $searchResult = $this->Model->searchBySingleEntity('reservations', 'date', $search, $today);
+    $sort = $sort ?? 'date';
+    $order = $order ?? '';
+
+    $searchResult = $this->Reservation->getAllReservationsByMultipleQuery($date, $category, $search, $sort, $order);
 
     $reservations = $this->Model->paginate(
       $searchResult,
       10,
-      $search,
+      $date,
       function ($offset, $numOfPage, $search) {
-        $min = '2024-01-01';
-        if (isset($_GET["offset"]) && $offset > $numOfPage || isset($_GET["offset"]) && !is_numeric($_GET["offset"]) || !self::validateDate($search) || $search < $min) {
-          $this->Toast->set('Inkorrekt dátum vagy oldalszám!', 'danger', "/admin/reservations");
-          exit;
-        }
       }
-
     );
 
-
-
-
-
-    echo $this->Render->write("admin/Layout.php", [
-      "count_of_reservations" => count($this->Reservation->getAllReservationsWithoutAccept()),
-      "csfr" => $this->CSFRToken,
-      "content" => $this->Render->write("admin/pages/Reservations.php", [
-        "data" => $reservations
-      ])
-    ]);
+    echo json_encode($reservations);
   }
 
   public function holidays()
   {
 
-    $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
+    // $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
 
     $results = $this->Holiday->holidays();
-    $holidays = $this->Model->paginate($results, 10, '', function () {});
+    $holidays = $this->Model->paginate($results, 10, '', function () {
+    });
 
- 
+
 
     echo $this->Render->write("admin/Layout.php", [
       "csfr" => $this->CSFRToken,
@@ -112,7 +157,7 @@ class AdminController extends Controller
   public function openingHours()
   {
 
-    $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
+    //  $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
     $opening_hours = $this->Model->all('opening_hours');
 
 
@@ -129,7 +174,7 @@ class AdminController extends Controller
 
   public function capacities()
   {
-    $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
+    //  $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
 
     $default_capacity = $this->Model->selectByRecord('capacities', 'is_default', 1, PDO::PARAM_INT)['capacity'];
     $results = $this->Capacity->capacities();
@@ -152,7 +197,7 @@ class AdminController extends Controller
   public function adminList()
   {
 
-    $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
+    //  $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
 
 
     $results = $this->Model->all('admins');
@@ -180,18 +225,28 @@ class AdminController extends Controller
 
   public function login()
   {
-    $this->CSFRToken->check();
     session_start();
+    $this->initializePOST();
+    $admin = $this->Admin->loginAdmin($_POST);
 
-    $isSuccess = $this->Admin->loginAdmin($_POST);
-
-    if ($isSuccess) {
-      $session_timeout = 5;
-      session_set_cookie_params($session_timeout, '/', '', true, true); // secure és httponly flag beállítása
-      session_regenerate_id(true);
+    if ($admin) {
+      $this->CSFRToken->check();
+      $accessToken = $this->Auth->generateAccessToken($admin);
+      $this->Auth->generateRefreshToken($admin);
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'accessToken' => $accessToken,
+        'message' => 'Sikeres bejelentkezés!'
+      ]);
+      return;
+    } else {
+      http_response_code(401);
+      echo json_encode([
+        'status' => false,
+        'message' => 'Hibás e-mail vagy jelszó!'
+      ]);
     }
-
-    self::redirectByState($isSuccess, '/admin/dashboard', '/admin');
   }
 
 
@@ -213,7 +268,7 @@ class AdminController extends Controller
 
   public function index()
   {
-    $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
+    //$this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
 
 
     echo $this->Render->write("admin/Layout.php", [

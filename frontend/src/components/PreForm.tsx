@@ -56,9 +56,6 @@ const PreForm: React.FC<PreFormProps> = ({
     if (selectedReservationDateRange) {
       setSelectedReservationDateRange(null);
     }
-
-    console.log(calendar)
-
   };
 
   const handleIntervalChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -97,7 +94,6 @@ const PreForm: React.FC<PreFormProps> = ({
   };
 
 
-  console.log(numOfGuests);
 
 
   return (

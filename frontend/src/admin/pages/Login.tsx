@@ -28,7 +28,7 @@ const Login = () => {
     }
 
 
-    fetchAuthentication.post('/admin/login', admin).then(res => {
+    fetchAuthentication.post('/api/admin/login', admin).then(res => {
       localStorage.setItem('accessToken', res.data.accessToken);
       toast.success('Sikeres bejelentkezés!')
       setLoggedIn(true);

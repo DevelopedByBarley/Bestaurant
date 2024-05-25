@@ -36,7 +36,7 @@ const Reservation = () => {
         interval
       };
 
-      axios.post('/reservation', reservationData)
+      axios.post('/api/reservation', reservationData)
         .then(res => {
           const { data } = res.data;
           if (res.status === 500) {
@@ -60,11 +60,11 @@ const Reservation = () => {
 
 
   return (
-    <div className={`mx-auto h-screen md:h-auto container fixed z-40 left-0 right-0 top-16 mt-1 bg-white lg:w-3/5 ${page === 1 ? 'fade-top' : ''}`}>
+    <div className={`mx-auto h-screen md:h-auto container fixed z-40 left-0 right-0 top-16 mt-1 bg-white dark:bg-gray-900 dark:text-white lg:w-3/5 ${page === 1 ? 'fade-top' : ''}`}>
       <div className="reservation-container">
         <div className="w-full flex items-start justify-between">
           <h1 className="text-3xl font-light mt-3 px-5  mb-5">Foglalás leadása</h1>
-          <button onClick={() => setModal(false)} type="button" className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+          <button onClick={() => setModal(false)} type="button" className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:bg-gray-900 dark:hover:bg-gray-800">
             <span className="sr-only">Close menu</span>
             <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />

@@ -69,7 +69,7 @@ const Header = () => {
     <div className='relative z-30 h-screen w-screen overflow-hidden bg-gray-900' id='header' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onMouseMove={handleMouseMove} style={{ cursor: isHovered ? 'none' : 'auto' }}>
       <div className={`h-screen w-full absolute`}>
         <div className='absolute bottom-0 left-0 xl:right-16 xl:left-auto right-0 xl:w-1/5 z-30 p-5 gap-5 h-32 flex justify-center'>
-          <div>
+          <div className='hidden xl:block'>
             {[1, 2, 3, 4].map((count) => (
               <PaginatorButton
                 key={`button-${count}`}
@@ -85,13 +85,13 @@ const Header = () => {
       </div>
 
       <div onClick={handlePageChange}>
-        {[1, 2, 3, 4].map((count) => (
-          <Slide page={page} count={count} />
-        ))}
+        <Slide page={page} />
       </div>
 
-      {isHovered && <Cursor cursorPosition={cursorPosition} percentage={percentage} />}
-      <ToBottom />
+      <div className='hidden xl:block'>
+        {isHovered && <Cursor cursorPosition={cursorPosition} percentage={percentage} />}
+        <ToBottom />
+      </div>
 
     </div >
   );

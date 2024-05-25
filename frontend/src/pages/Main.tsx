@@ -15,7 +15,7 @@ const Main = () => {
     <div className='relative'>
       <div className="h-screen">
         {modal && <Reservation />}
-        <section>
+        <section className={modal ? 'overflow-hidden' : ''}>
           <Header />
         </section>
       </div>

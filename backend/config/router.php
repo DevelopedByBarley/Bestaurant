@@ -12,23 +12,23 @@ function registerRoutes(FastRoute\RouteCollector $router)
     require_once 'routes/home.php';
   });
 
-  $router->addGroup('/admin', function (FastRoute\RouteCollector $r) {
+  $router->addGroup('/api/admin', function (FastRoute\RouteCollector $r) {
     if (ADMIN_SERVICE_PERM) {
       require_once 'routes/admin.php';
     }
   });
 
-  $router->addGroup('/user', function (FastRoute\RouteCollector $r) {
+  $router->addGroup('/api/user', function (FastRoute\RouteCollector $r) {
     if (USER_SERVICE_PERM) {
       require_once 'routes/user.php';
     }
   });
   
-  $router->addGroup('/reservation', function (FastRoute\RouteCollector $r) {
+  $router->addGroup('/api/reservation', function (FastRoute\RouteCollector $r) {
     require_once 'routes/reservation.php';
   });
 
-  $router->addGroup('/capacity', function (FastRoute\RouteCollector $r) {
+  $router->addGroup('/api/capacity', function (FastRoute\RouteCollector $r) {
     require_once 'routes/capacity.php';
   });
 }

@@ -1,11 +1,12 @@
 <?php
 
 use App\Services\LanguageService;
+
 header('Access-Control-Allow-Origin: *');
 
 header('Access-Control-Allow-Methods: GET, POST');
 
-header("Access-Control-Allow-Headers: X-Requested-With");
+header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, Authorization");
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -23,6 +24,3 @@ require_once 'config/langs.php';
 require_once 'config/app.php';
 require_once 'config/database.php';
 require_once 'config/router.php';
-
-
-

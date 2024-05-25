@@ -14,7 +14,6 @@
   RewriteRule ^(.*)$ frontend/public/favicon.ico [END]
 
 
-  SetEnv JWT_TOKEN_SECRET SDr45j8dY4KJADCh
   # Ha a public mappában lévő fájlra érkezett a kérés, szolgáld ki a fájlt
   RewriteCond %{REQUEST_URI} ^.*public/(.*)
   RewriteRule ^(.*)$ backend/public/%1 [END]

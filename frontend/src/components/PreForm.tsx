@@ -36,7 +36,7 @@ const PreForm: React.FC<PreFormProps> = ({
   const [capacity, setCapacity] = useState(0);
 
   useEffect(() => {
-    axios.get('/capacity').then(res => {
+    axios.get('/api/capacity').then(res => {
       const { data } = res.data;
       setCapacity(data.capacity);
     })
@@ -97,7 +97,7 @@ const PreForm: React.FC<PreFormProps> = ({
 
 
   return (
-    <div className="grid md:grid-cols-3 gap-4 p-3">
+    <div className="grid md:grid-cols-3 gap-4 p-3 dark:bg-gray-900">
       <div>
         <label htmlFor="number-input" className="mt-5 block mb-2 text-sm font-medium text-gray-900 dark:text-white">
           Dátum kiválasztása

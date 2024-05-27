@@ -1,45 +1,20 @@
 import React from 'react';
 
 type SlideProps = {
-  page: number;
+  imageUrl: string;
+  text: string;
+  isActive: boolean;
 };
 
-const Slide: React.FC<SlideProps> = React.memo(({ page }) => {
-
-
+const Slide: React.FC<SlideProps> = React.memo(({ imageUrl, text, isActive }) => {
   return (
     <>
       <div
-        className={`pt-20 absolute flex items-center justify-center w-full h-full opacity-0 ${page === 1 ? 'zoom-in-and-out' : ''}`}
-        style={{ background: `url('/public/assets/images/restaurant-interior.jpg') top center/cover` }}
-      >
-        <div className={`${page === 1 ? 'fade-bottom' : ''} xl:w-4/6`}>
-          <h1 className='text-2xl xl:text-7xl font-extrabold text-white text-center text-shadow'>JÖJJÖN EL ÉTTERMÜNKBE ÉS GAZDAGODJON ÚJ ÉLMÉNYEKKEL</h1>
-        </div>
-      </div>
-      <div
-        className={`pt-20 absolute flex items-center justify-center w-full h-full opacity-0 ${page === 2 ? 'zoom-in-and-out' : ''}`}
-        style={{ background: `url('/public/assets/images/glasses-red-white-wine.jpg') top center/cover` }}
-      >
-        <div className={`${page === 1 ? 'fade-bottom' : ''} xl:w-4/6`}>
-          <h1 className='text-2xl xl:text-7xl font-extrabold text-white text-center text-shadow'>PRÉMIUM BORLAPUNKRÓL MEGTALÁLHATJA AZ ÖNNEK MEGFELELŐ ITALT</h1>
-        </div>
-      </div>
-      <div
-        className={`pt-20 absolute flex items-center justify-center w-full h-full opacity-0 ${page === 3 ? 'zoom-in-and-out' : ''}`}
-        style={{ background: `url('/public/assets/images/happy-waiters-bringing-food-table-serving-group-friends-restaurant.jpg') top center/cover` }}
-      >
-        <div className={`${page === 1 ? 'fade-bottom' : ''} xl:w-4/6`}>
-          <h1 className='text-2xl xl:text-7xl font-extrabold text-white text-center text-shadow'>MINŐSÉGI KISZOLGÁLÁS</h1>
-        </div>
-      </div>
-      <div
-        className={`pt-20 absolute flex items-center justify-center w-full h-full opacity-0 ${page === 4 ? 'zoom-in-and-out' : ''}`}
-        style={{ background: `url('/public/assets/images/restaurants-terrace-with-black-green-awnings.jpg') top center/cover` }}
-      >
-        <div className={`${page === 1 ? 'fade-bottom' : ''} xl:w-4/6`}>
-          <h1 className='text-2xl xl:text-7xl font-extrabold text-white text-center text-shadow'>KÜLTÉR VAGY BELTÉR IZLÉS SZERINT</h1>
-        </div>
+        className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${isActive ? 'zoom-in-and-out' : 'opacity-0'}`}
+        style={{ background: `url(${imageUrl}) top center/cover` }}
+      ></div>
+      <div className="h-full w-full flex items-center justify-center absolute p-16">
+        <h2 className="text-white text-3xl xl:text-7xl font-extrabold text-center text-shadow">{isActive ? text : ''}</h2>
       </div>
     </>
   );

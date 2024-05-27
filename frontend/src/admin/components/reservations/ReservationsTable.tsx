@@ -34,7 +34,13 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
       setButtonPending(true);
       e.preventDefault();
 
-      fetchAuthentication.get('/api/admin/reservations/accept/' + id).then((res) => {
+      const elements = e.currentTarget.elements as HTMLFormControlsCollection;
+
+      const accept = {
+        csrf: (elements.namedItem("csrf") as HTMLInputElement)?.value,
+      }
+
+      fetchAuthentication.post('/api/admin/reservations/accept/' + id, accept).then((res) => {
         const { message } = res.data;
         toast.success(message);
         setReservations((prevReservations) => {
@@ -106,6 +112,8 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
       case 'accept':
         return (
           <form onSubmit={(e) => acceptReservation(e, currentReservation.id)}>
+            <CSFR dependency={currentReservation} />
+
             <h1 className="text-2xl font-extrabold">Biztosan elfogadja a következő foglalást?</h1>
             <div className="mt-5">
               <h1 className="text-xl">{currentReservation.name}</h1>
@@ -256,7 +264,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
         </thead>
         <tbody>
           {reservations.map((reservation) => (
-            <tr key={reservation.id} className={`${reservation.isAccepted ? 'bg-cyan-300 hover:bg-cyan-400' : 'bg-rose-300 hover:bg-rose-400'} transition border-b dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-600`}>
+            <tr key={reservation.id} className={`${reservation.isAccepted ? 'bg-cyan-300 hover:bg-cyan-400 dark:bg-cyan-700 dark:hover:bg-cyan-600' : 'bg-rose-300 hover:bg-rose-400 dark:bg-rose-700 dark:hover:bg-rose-600'} transition`}>
               <th scope="row" className="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white font-extrabold">{reservation.id}</th>
               <th scope="row" className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.name}</th>
               <th scope="row" className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.date}</th>

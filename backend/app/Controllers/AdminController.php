@@ -75,7 +75,8 @@ class AdminController extends Controller
     }
   }
 
-  public function cancelReservation($vars) {
+  public function cancelReservation($vars)
+  {
     self::initializePOST();
     $this->CSFRToken->check();
     $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
@@ -85,7 +86,8 @@ class AdminController extends Controller
 
     $cancelled = $this->Reservation->cancel($_POST, $id);
   }
-  public function deleteReservation($vars) {
+  public function deleteReservation($vars)
+  {
     self::initializePOST();
     $this->CSFRToken->check();
     $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
@@ -254,16 +256,34 @@ class AdminController extends Controller
 
   public function logout()
   {
-
+    $this->initializePOST();
+    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
     $this->CSFRToken->check();
-    session_start();
+
+    // Ellenőrizzük, hogy a session már el lett-e indítva
+    if (session_status() == PHP_SESSION_NONE) {
+      session_start();
+    }
+
     session_destroy();
-    session_regenerate_id(true);
 
+    // Unset the session cookie
     $cookieParams = session_get_cookie_params();
-    setcookie(session_name(), "", 0, $cookieParams["path"], $cookieParams["domain"], $cookieParams["secure"], isset($cookieParams["httponly"]));
+    setcookie(session_name(), '', time() - 42000, $cookieParams["path"], $cookieParams["domain"], $cookieParams["secure"], isset($cookieParams["httponly"]));
 
-    header("Location: /admin");
+    // Unset the refresh token cookie
+    if (isset($_COOKIE['refreshToken'])) {
+      unset($_COOKIE['refreshToken']);
+      setcookie('refreshToken', '', time() - 42000, '/', $cookieParams["domain"], $cookieParams["secure"], true);
+    }
+
+    echo json_encode([
+      'status' => true,
+      'message' => 'Sikeres kiejelentkezés!'
+    ]);
+
+    return;
   }
 
   public function index()

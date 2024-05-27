@@ -13,7 +13,7 @@ const Login = () => {
   const { setLoggedIn } = useAdminContext();
 
   useEffect(() => {
-    if(localStorage.getItem('accessToken')) navigate('/admin/reservations');
+    if(localStorage.getItem('accessToken') && localStorage.getItem('accessToken') !== 'undefined' ) navigate('/admin/reservations');
   }, [navigate])
 
 

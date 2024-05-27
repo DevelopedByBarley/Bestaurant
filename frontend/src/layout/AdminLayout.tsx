@@ -9,7 +9,7 @@ const AdminLayout = () => {
 
 
   return (
-    <>
+    <div className="bg-white dark:bg-gray-700 text-black dark:text-white min-h-screen">
       <AdminProvider>
         <Navbar />
         <Outlet />
@@ -23,7 +23,7 @@ const AdminLayout = () => {
         />
       </AdminProvider>
 
-    </>
+    </div>
   );
 }
 

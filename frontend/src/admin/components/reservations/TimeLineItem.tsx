@@ -19,7 +19,6 @@ const TimelineItem = () => (
     </span>
     <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
       10:00-15:00
-
     </h3>
     <div className="border p-3 my-3 md:w-2/5 bg-emerald-500 text-white">
       <time className="block mb-2 text-sm font-normal leading-none dark:text-gray-500">
@@ -32,7 +31,7 @@ const TimelineItem = () => (
     <div className="border p-3 my-3 md:w-2/5 bg-rose-500 text-white">
       <time className="block mb-2 text-sm font-normal leading-none">
         <strong>
-          13:30-14:30 
+          13:30-14:30
         </strong>
         <h1 className='my-1 text-lg'>Szaniszló Árpád</h1>
       </time>

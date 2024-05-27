@@ -1,11 +1,12 @@
 
-import React, { Dispatch, SetStateAction, useContext } from 'react'
+import React, { Dispatch, SetStateAction, useContext, useState } from 'react'
 import CSFR from "../components/CSFR";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { DateValueType } from 'react-tailwindcss-datepicker';
 import { ModalContext } from '../context/ModalContext';
+import { minLength, required, trimTwo, validateEmail, validatePhoneNumber } from '../helpers/Validations';
 
 type FormTypes = {
   calendar: DateValueType;
@@ -21,6 +22,10 @@ type FormTypes = {
 const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, setPage }: FormTypes) => {
   const navigate = useNavigate();
   const { setModal } = useContext(ModalContext)
+  const [nameErrors, setNameErrors] = useState<string[]>([]);
+  const [mailErrors, setMailErrors] = useState<string[]>([]);
+  const [phoneErrors, setPhoneErrors] = useState<string[]>([]);
+  
 
   const sendReservation = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,9 +45,6 @@ const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, s
       email: (elements.namedItem("email") as HTMLInputElement)?.value,
       request: (elements.namedItem("request") as HTMLInputElement)?.value,
     }
-
-
-
     axios.post('/api/reservation/new', newReservation).then((res) => {
       toast.success(res.data.message)
       setModal(false);
@@ -52,31 +54,57 @@ const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, s
       console.error(err);
       toast.error('Téma hozzáadása sikertelen!');
     })
-
-
   }
+
+
+
+
 
   return (
     <form onSubmit={sendReservation}>
-      <div className="w-full grid grid-cols-2 gap-8 p-5">
+      <div className="w-full xl:grid grid-cols-2 gap-8 p-5">
         <div className="relative z-0 mb-5 group">
-          <input type="text" name="name" id="floating_first_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+          <input type="text" name="name" id="floating_first_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " onChange={(e) => {
+            console.log(nameErrors)
+            required(e, setNameErrors)
+            minLength(e, 3, setNameErrors)
+            trimTwo(e, setNameErrors)
+          }} required />
           <label htmlFor="floating_first_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-8 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8">Teljes név</label>
+          {nameErrors.map(err => (
+            <p className="text-red-500">{err}</p>
+          ))}
         </div>
         <div className="relative z-0 mb-5 group">
-          <input type="text" name="phone" id="floating_last_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+          <input type="text" name="phone" id="floating_last_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required
+            onChange={(e) => {
+              required(e, setPhoneErrors)
+              minLength(e, 10, setPhoneErrors)
+              validatePhoneNumber(e, setPhoneErrors)
+            }} />
           <label htmlFor="ast_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-8 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8">Telefonszám</label>
+          {phoneErrors.map(err => (
+            <p className="text-red-500">{err}</p>
+          ))}
         </div>
         <div className="relative z-0 mb-5 group col-span-2">
-          <input type="email" name="email" id="floating_last_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-          <label htmlFor="floating_last_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-8 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8">E-mail</label>
+          <input type="email" name="email" id="floating_last_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required onChange={(e) => {
+            required(e, setMailErrors)
+            validateEmail(e, setMailErrors)
+          }} />
+          <label htmlFor="floating_last_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-8 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8">
+            E-mail
+          </label>
+          {mailErrors.map(err => (
+            <p className="text-red-500">{err}</p>
+          ))}
         </div>
         <div className="relative z-0 mb-5 group col-span-2">
           <input type="text" name="request" id="floating_last_name" className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
           <label htmlFor="floating_last_name" className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-8 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8">Különleges kérések</label>
         </div>
       </div>
-      <CSFR dependency={''}/>
+      <CSFR dependency={''} />
 
 
       <div className="p-5">

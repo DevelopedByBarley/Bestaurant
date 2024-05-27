@@ -1,29 +1,23 @@
-import  { useContext } from 'react'
+import { useContext } from 'react';
 import Reservation from './Reservation';
 import { ModalContext } from '../context/ModalContext';
-import Header from '../components/Header';
+import Carousel from '../components/Carousel';
 
 const Main = () => {
-
   const { modal } = useContext(ModalContext);
-
-
-
-
 
   return (
     <div className='relative'>
-      <div className="h-screen">
+      <div className={modal ? 'fixed md:static inset-0 overflow-hidden' : ''}>
         {modal && <Reservation />}
-        <section className={modal ? 'overflow-hidden' : ''}>
-          <Header />
+        <section>
+          <Carousel />
         </section>
       </div>
       <div className="h-screen" id='story'>
-          
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Main
+export default Main;

@@ -36,6 +36,7 @@
 }
 
 
+
 .text-shadow {
   text-shadow: 1px 1px 2px black;
 }
@@ -74,10 +75,9 @@
 
 .zoom-in-and-out {
   animation-name: zoomInAndOut;
-  animation-duration: 10s;
+  animation-duration: 11s;
   animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
   animation-fill-mode: inherit;
-  animation-delay: 1s;
 }
 
 @keyframes zoomInAndOut {

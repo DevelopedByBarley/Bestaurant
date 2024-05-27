@@ -1,4 +1,4 @@
-import  { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 import { ModalContext } from '../context/ModalContext';
 import { Link } from 'react-router-dom';
 
@@ -19,11 +19,11 @@ const Navbar = () => {
         </a>
         <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           <button onClick={() => { setModal(true) }} className="border border-gray-600 dark:text-white hover:bg-gray-900 hover:text-white dark:bg-gray-600 dark:hover:bg-gray-600 transition   focus:ring-4 focus:outline-nonefont-medium rounded-lg text-sm px-4 py-2 text-center ">Asztalfoglalás</button>
-          <button 
-            data-collapse-toggle="navbar-cta" 
-            type="button" 
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" 
-            aria-controls="navbar-cta" 
+          <button
+            data-collapse-toggle="navbar-cta"
+            type="button"
+            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+            aria-controls="navbar-cta"
             aria-expanded={isExpanded}
             onClick={toggleMenu}
           >

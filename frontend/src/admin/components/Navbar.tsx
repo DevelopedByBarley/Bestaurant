@@ -1,76 +1,88 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useAdminContext } from "../contexts/AdminContext";
-import CSFR from "../../components/CSFR";
-import { toast } from "react-toastify";
-import { fetchAuthentication } from "../../services/AuthService";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAdminContext } from '../contexts/AdminContext';
+import CSFR from '../../components/CSFR';
+import { toast } from 'react-toastify';
+import { fetchAuthentication } from '../../services/AuthService';
 
 const Navbar = () => {
   const { isLoggedIn, setLoggedIn } = useAdminContext();
   const navigate = useNavigate();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleMenu = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   if (!isLoggedIn) {
     return null;
   }
 
-  const logout = (e: React.FormEvent<HTMLFormElement>) => {
+  const logout = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const elements = e.currentTarget.elements as HTMLFormControlsCollection;
-    const logout = {
-      csrf: (elements.namedItem("csrf") as HTMLInputElement)?.value,
-    }
+    const logoutData = {
+      csrf: (elements.namedItem('csrf') as HTMLInputElement)?.value,
+    };
 
-    fetchAuthentication.post('/api/admin/logout', logout).then(res => {
+    try {
+      const res = await fetchAuthentication.post('/api/admin/logout', logoutData);
       const { status } = res.data;
 
       if (status) {
         localStorage.removeItem('accessToken');
         setLoggedIn(false);
-        toast.success('Sikeres kiejelentkezés!');
+        toast.success('Sikeres kijelentkezés!');
         navigate('/admin');
       }
-
-    })
-  }
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Handle logout error
+    }
+  };
 
   return (
-    <nav className="bg-white border-gray-200 dark:bg-gray-900">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="https://flowbite.com/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <img src="https://flowbite.com/docs/images/logo.svg" className="h-8" alt="Flowbite Logo" />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Admin</span>
-        </a>
-        <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-          <form onSubmit={logout}>
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+      <div className="max-w-screen-xl flex items-center justify-between mx-auto py-4 px-8">
+        <div className="flex items-center">
+          <a href="https://flowbite.com/" className="flex items-center space-x-3">
+            <img src="https://flowbite.com/docs/images/logo.svg" className="h-8" alt="Flowbite Logo" />
+            <span className="text-2xl font-semibold dark:text-white">Admin</span>
+          </a>
+        </div>
+        <div className="hidden xl:flex items-center space-x-4">
+          <Link to="/admin/reservations" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Foglalások</Link>
+          <Link to="/admin/capacities" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kapacitás</Link>
+          <Link to="/admin/opening" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Nyitvatartás</Link>
+          <Link to="/admin/holidays" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kivételek és ünnepnapok</Link>
+          <Link to="/admin/menu" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Étlap és itallap</Link>
+          <Link to="/admin/admins" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Adminok</Link>
+        </div>
+        <div className="flex items-center">
+          <form onSubmit={logout} className="mr-4">
             <CSFR dependency={[]} />
-            <button type="submit" className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Kijelentkezés</button>
+            <button type="submit" className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Kijelentkezés</button>
           </form>
-          <button data-collapse-toggle="navbar-cta" type="button" className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-cta" aria-expanded="false">
-            <span className="sr-only">Open main menu</span>
-            <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
+          <button onClick={toggleMenu} className="xl:hidden text-gray-500 focus:outline-none">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isExpanded ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              )}
             </svg>
           </button>
         </div>
-        <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-cta">
-          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-            <Link to={'/admin/reservations'}>
-              <li>
-                <div className="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500" aria-current="page">Foglalások</div>
-              </li>
-            </Link>
-            <Link to={'/admin/capacities'}>
-              <li>
-                <div className="block py-2 px-3 md:p-0 bg-blue-700 text-black rounded md:bg-transparent  md:dark:text-blue-500" aria-current="page">Kapacitás</div>
-              </li>
-            </Link>
-            <li>
-              <div className="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Services</div>
-            </li>
-            <li>
-              <div className="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</div>
-            </li>
-          </ul>
-        </div>
+      </div>
+      <div className={`${isExpanded ? 'block' : 'hidden'} xl:hidden`}>
+        <ul className="px-2 py-3">
+          <li><Link to="/admin/reservations" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Foglalások</Link></li>
+          <li><Link to="/admin/capacities" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kapacitás</Link></li>
+          <li><Link to="/admin/opening" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Nyitvatartás</Link></li>
+          <li><Link to="/admin/holidays" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kivételek és ünnepnapok</Link></li>
+          <li><Link to="/admin/menu" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Étlap és itallap</Link></li>
+          <li><Link to="/admin/admins" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Adminok</Link></li>
+        </ul>
       </div>
     </nav>
   );

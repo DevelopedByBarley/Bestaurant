@@ -88,7 +88,7 @@ const Reservations = () => {
 
 
         <div className="w-full col-span-3 p-2">
-          <div className="border border-neutral-900 rounded-xl xl:w-1/5 mx-auto relative z-50">
+          <div className="border border-neutral-900 rounded-xl xl:w-1/5 mx-auto relative z-40">
             <Datepicker
               useRange={false}
               asSingle={true}

@@ -12,9 +12,9 @@ import Capacities from './admin/pages/Capacities';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+      <Route path="*" element={<Error />} />
       <Route element={<MainLayout />} >
         <Route path='/' element={<Main />} />
-        <Route path="*" element={<Error />} />
       </Route>
       <Route element={< AdminLayout />} >
         <Route path='/admin'>

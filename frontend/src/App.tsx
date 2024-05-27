@@ -7,6 +7,7 @@ import { ModalContextProvider } from './context/ModalContext';
 import Login from './admin/pages/Login';
 import Reservations from './admin/pages/Reservations';
 import AdminLayout from './layout/AdminLayout';
+import Capacities from './admin/pages/Capacities';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -19,6 +20,7 @@ const router = createBrowserRouter(
         <Route path='/admin'>
           <Route path='' element={<Login />} />
           <Route path='reservations' element={<Reservations />} />
+          <Route path='capacities' element={<Capacities />} />
         </Route>
       </Route>
     </>

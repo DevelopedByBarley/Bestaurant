@@ -7,6 +7,7 @@ import { FetchResponseTypes, ReservationsTypes } from '../../types/ReservationsT
 import NoReservationHeader from '../components/reservations/NoReservationHeader';
 import ReservationsTable from '../components/reservations/ReservationsTable';
 import SearchBar from '../components/reservations/SearchBar';
+import Alert from '../../components/Alert';
 
 const Reservations = () => {
   const [reservations, setReservations] = useState<ReservationsTypes[]>([]);
@@ -68,7 +69,13 @@ const Reservations = () => {
     <div className="container mx-auto my-16">
       <div className="grid grid-cols-3">
         <div className='col-span-3 text-center mb-10 flex items-center justify-center flex-col space-y-5'>
-          <span className='font-extrabold text-4xl'>Összes foglalás</span>
+          <h1 className='font-extrabold text-4xl'>Összes foglalás
+            <span className='mx-3 inline-block relative bottom-1'>
+              <Alert title='Info'
+                content='Áttekintheti és kezelheti az étterem foglalásait. A rendszer értesítést küld a műveletek végrehajtásakor a foglaló e-mail címére!'
+              />
+            </span>
+          </h1>
           <button
             onClick={() => {
               setCalendar({ startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0] });
@@ -110,7 +117,7 @@ const Reservations = () => {
         </div>
 
 
-        
+
 
         <div className="container w-full col-span-3 mb-10 mt-5">
           <div className="relative overflow-x-auto shadow-md sm:rounded-xl min-h-80">

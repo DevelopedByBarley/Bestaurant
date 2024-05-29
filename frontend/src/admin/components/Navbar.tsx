@@ -14,6 +14,7 @@ const Navbar = () => {
     setIsExpanded(!isExpanded);
   };
 
+
   if (!isLoggedIn) {
     return null;
   }
@@ -50,7 +51,7 @@ const Navbar = () => {
             <span className="text-2xl font-semibold dark:text-white">Admin</span>
           </a>
         </div>
-        <div className="hidden xl:flex items-center space-x-4">
+        <div className="hidden xl:flex items-center space-x-10">
           <Link to="/admin/reservations" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Foglalások</Link>
           <Link to="/admin/capacities" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kapacitás</Link>
           <Link to="/admin/opening" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Nyitvatartás</Link>

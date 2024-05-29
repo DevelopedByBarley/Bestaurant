@@ -65,7 +65,7 @@ class Model
     $pagedResults = array_slice($results, $calculated, $limit);
 
     $searchCondition($offset, $numOfPage, $search);
-    
+
 
     // Visszatérés a lapozott eredményekkel és egyéb adatokkal
     return [
@@ -115,12 +115,12 @@ class Model
     }
   }
 
-  public function selectByRecord($table, $entity, $value, $param)
-  {
 
+  public function selectByRecord($table, $column, $value, $param)
+  {
     try {
-      $stmt = $this->Pdo->prepare("SELECT * FROM $table WHERE $entity = :entity");
-      $stmt->bindParam(':entity', $value, $param);
+      $stmt = $this->Pdo->prepare("SELECT * FROM {$table} WHERE {$column} = :value");
+      $stmt->bindParam(':value', $value, $param);
       $stmt->execute();
       $result = $stmt->fetch(PDO::FETCH_ASSOC);
 

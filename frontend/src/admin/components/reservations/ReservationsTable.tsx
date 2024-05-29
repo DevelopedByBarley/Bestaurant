@@ -185,7 +185,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
             <div className="mt-5">
               <h1 className="text-xl">Név: {currentReservation.name}</h1>
               <h1 className="text-xl">Időszak: {currentReservation.start} - {currentReservation.end}</h1>
-              <h1 className="text-xl">Státusz: {currentReservation.isAccepted ? 'Elfogadva' : 'Függőben'}</h1>
+              <h1 className="text-xl">Státusz: {Boolean(Number(currentReservation.isAccepted)) ? 'Elfogadva' : 'Függőben'}</h1>
             </div>
             <div className="mt-5 space-x-5 flex">
               <button
@@ -195,7 +195,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
                 }}>
                 Elfogadás
               </button>
-              {currentReservation.isAccepted ? (
+              {Boolean(Number(currentReservation.isAccepted)) ? (
                 <button
                   className="btn-yellow"
                   onClick={() => {
@@ -264,13 +264,13 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
         </thead>
         <tbody>
           {reservations.map((reservation) => (
-            <tr key={reservation.id} className={`${reservation.isAccepted ? 'bg-cyan-300 hover:bg-cyan-400 dark:bg-cyan-700 dark:hover:bg-cyan-600' : 'bg-rose-300 hover:bg-rose-400 dark:bg-rose-700 dark:hover:bg-rose-600'} transition`}>
+            <tr key={reservation.id} className={`${Boolean(Number(reservation.isAccepted)) ? 'bg-cyan-300 hover:bg-cyan-400 dark:bg-cyan-700 dark:hover:bg-cyan-600' : 'bg-rose-300 hover:bg-rose-400 dark:bg-rose-700 dark:hover:bg-rose-600'} transition`}>
               <th scope="row" className="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white font-extrabold">{reservation.id}</th>
               <th scope="row" className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.name}</th>
               <th scope="row" className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.date}</th>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.start} - {reservation.end}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.numOfGuests}</td>
-              <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.isAccepted ? 'Igen' : 'Nem'}</td>
+              <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{Boolean(Number(reservation.isAccepted)) ? 'Igen' : 'Nem'}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.email}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.phone}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.request.length !== 0 ? 'Megadva' : 'Nincs'}</td>
@@ -278,7 +278,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
                 <button onClick={() => { setCurrentReservation(reservation); setShow(true); setModalStatus('show') }} className="btn-light">
                   Megtekint
                 </button>
-                {reservation.isAccepted ? (
+                {Boolean(Number(reservation.isAccepted)) ? (
                   <div>
                     <button onClick={() => { setCurrentReservation(reservation); setShow(true); setModalStatus('cancel') }} className="btn-yellow">Visszavon</button>
                   </div>
@@ -302,7 +302,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
           ))}
         </tbody>
       </table >
-      <Modal show={show} setShow={setShow} title={currentReservation?.isAccepted ? 'Foglalás visszavonása' : 'Foglalás elfogadása'}>
+      <Modal show={show} setShow={setShow} title={Boolean(Number(currentReservation?.isAccepted)) ? 'Foglalás visszavonása' : 'Foglalás elfogadása'}>
         {generateModalContent(currentReservation)}
       </Modal>
     </div >

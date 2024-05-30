@@ -4,7 +4,6 @@ type AlertTypes = {
   title: string,
   content: string
 }
-
 const Alert = ({ title, content }: AlertTypes) => {
   const [show, setShow] = useState(false);
 

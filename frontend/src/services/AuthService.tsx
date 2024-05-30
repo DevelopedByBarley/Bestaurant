@@ -1,19 +1,16 @@
 
 import axios, { InternalAxiosRequestConfig } from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import { AdminJwtPayloadType } from '../types/AdminTypes';
 
 
-/* type UserTypes = {
-  name: string,
-  email: string,
-  password: string
-} */
 
 export function authByToken() {
   const accessToken = localStorage.getItem('accessToken');
   if (!accessToken || accessToken === 'undefined') {
     window.location.href = '/admin'
-  } else
-    return accessToken;
+    return null;
+  } else return jwtDecode<AdminJwtPayloadType>(accessToken);
 }
 
 export const fetchAuthentication = axios.create();

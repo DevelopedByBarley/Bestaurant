@@ -1,7 +1,10 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 const Error = () => {
+  const goBack = () => {
+    window.history.back(); // A böngésző visszaléptetése az előző oldalra
+  };
+
   return (
     <>
       <section className="bg-white dark:bg-gray-900 h-screen flex items-center justify-center">
@@ -9,11 +12,11 @@ const Error = () => {
           <div className="mx-auto max-w-screen-sm text-center">
             <h1 className="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-blue-500">404</h1>
             <p className="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">Valami hiányzik <span className='text-6xl mx-1'>&#128546;</span></p>
-            <p className="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">Sajnáljuk, ez az oldal nem található. Kréjük lépjen a kezdőoldalra! </p>
+            <p className="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">Sajnáljuk, ez az oldal nem található. Kérjük, lépjen a kezdőoldalra! </p>
             <div className="flex items-center justify-center mt-6 gap-x-3">
-              <button className="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 transition-colors duration-200 bg-white border rounded-lg gap-x-2 sm:w-auto dark:hover:bg-gray-800 dark:bg-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-700">
+              <button className="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 transition-colors duration-200 bg-white border rounded-lg gap-x-2 sm:w-auto dark:hover:bg-gray-800 dark:bg-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-700" onClick={goBack}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-5 h-5 rtl:rotate-180">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
                 </svg>
 
 
@@ -34,4 +37,4 @@ const Error = () => {
   )
 }
 
-export default Error
+export default Error;

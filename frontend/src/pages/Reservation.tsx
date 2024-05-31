@@ -97,7 +97,9 @@ const Reservation = () => {
               <ul className="grid w-full gap-4 grid-cols-3 md:grid-cols-7 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-10 p-3 my-10">
                 {freeDates ? freeDates.map((date, index) => {
                   return (
-                    <TimeListItem index={index} setPage={setPage} date={date} from={date.from} to={date.to} selectedReservationDateRange={selectedReservationDateRange} setSelectedReservationDateRange={setSelectedReservationDateRange} />
+                    <div key={index}>
+                      <TimeListItem index={index} setPage={setPage} date={date} from={date.from} to={date.to} selectedReservationDateRange={selectedReservationDateRange} setSelectedReservationDateRange={setSelectedReservationDateRange} />
+                    </div>
                   );
                 }) : ''}
               </ul>

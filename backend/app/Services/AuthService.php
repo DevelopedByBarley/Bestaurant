@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use Exception;
@@ -14,7 +15,8 @@ class AuthService
     $key = $_SERVER["JWT_SECRET"];
     $payload = [
       'sub' => $user["id"],
-      "name" => $user["name"],
+      'name' => $user["name"],
+      'level' => $user["level"] ?? null,
       'iat' => time(),
       'exp' => time() + 70000,
     ];
@@ -26,27 +28,28 @@ class AuthService
   }
 
 
-    public function generateRefreshToken($user)
-    {
-      $key = $_SERVER["JWT_SECRET"];
-      $payload = [
-        'sub' => $user["id"],
-        "name" => $user["name"],
-        'iat' => time(),
-        'exp' => time() + 70000
-      ];
+  public function generateRefreshToken($user)
+  {
+    $key = $_SERVER["JWT_SECRET"];
+    $payload = [
+      'sub' => $user["id"],
+      'name' => $user["name"],
+      'level' => $user["level"] ?? null,
+      'iat' => time(),
+      'exp' => time() + 70000
+    ];
 
-      $refreshToken = JWT::encode($payload, $key, 'HS256');
+    $refreshToken = JWT::encode($payload, $key, 'HS256');
 
 
-      setcookie('refreshToken', $refreshToken, [
-        'expires' => time() + 70000,
-        'path' => "/",
-        'httponly' => true,
-        'secure' => true,
-        'samesite' => 'None', // csak fejlesztési célokkal 'None', amúgy 'Lax'
-      ]);
-    }
+    setcookie('refreshToken', $refreshToken, [
+      'expires' => time() + 70000,
+      'path' => "/",
+      'httponly' => true,
+      'secure' => true,
+      'samesite' => 'None', // csak fejlesztési célokkal 'None', amúgy 'Lax'
+    ]);
+  }
 
 
 
@@ -89,15 +92,16 @@ class AuthService
 
   public function getNewAccessToken()
   {
- 
+
     $refreshToken = $_COOKIE["refreshToken"];
-    
+
     $decoded = self::decodeJwtOrSendErrorResponse($refreshToken);
 
     $key = $_SERVER["JWT_SECRET"];
     $payload = [
       'sub' => $decoded["sub"],
-      "name" => $decoded["name"],
+      'name' => $decoded["name"],
+      'level' => $user["level"] ?? null,
       'iat' => time(),
       'exp' => time() + 70000,
     ];

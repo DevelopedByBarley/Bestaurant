@@ -1,0 +1,1 @@
+- Admin oldalra foglalás behelyezése

@@ -60,7 +60,7 @@ const Reservation = () => {
 
 
   return (
-    <div className={`mx-auto h-screen md:h-auto container fixed z-40 left-0 right-0 top-16 mt-1 bg-white dark:bg-gray-900 dark:text-white lg:w-3/5 ${page === 1 ? 'fade-top' : ''}`}>
+    <div className={`mx-auto h-screen md:h-auto container fixed z-50 left-0 right-0 top-16 mt-1 bg-white dark:bg-gray-900 dark:text-white lg:w-3/5 ${page === 1 ? 'fade-top' : ''}`}>
       <div className="reservation-container">
         <div className="w-full flex items-start justify-between">
           <h1 className="text-3xl font-light mt-3 px-5  mb-5">Foglalás leadása</h1>

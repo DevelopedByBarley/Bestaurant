@@ -19,19 +19,34 @@ class CapacityController extends Controller
 
 
 
-  public function index()
+  public function index($vars)
   {
-    $date = date('Y-m-d', time());
 
-    $defaultCapacity = $this->Capacity->getDefaultCapacity();
-    $capacityException = $this->Model->selectByRecord('capacities', 'date', $date, PDO::PARAM_STR);
+    $date = isset($vars['date']) ? filter_var($vars['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+    $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '')[0]['capacity'] ?? null;
+    $default = $this->Capacity->getDefaultCapacity()['capacity'];
+    $current = !empty($exception) ? $exception : $default;
 
-    echo json_encode([
-      'data' => $capacityException ? $capacityException : $defaultCapacity
-    ]);
+    if (!empty($current) && $current) {
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'message' => $current['message'] ?? 'Fail',
+        'dev' => $current['dev'] ?? 'Fail',
+        'data' => $current
+      ]);
+    } else {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'message' => 'Szerver probléma , sikertelen kapacitás lekérése!',
+        'dev' => 'Server problem, capacity fetch fail!',
+        'data' => null
+      ]);
+    }
   }
 
-  public function updateCapacity() {
-    
+  public function updateCapacity()
+  {
   }
 }

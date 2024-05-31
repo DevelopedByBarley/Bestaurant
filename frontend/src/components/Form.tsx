@@ -2,7 +2,7 @@
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react'
 import CSFR from "../components/CSFR";
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DateValueType } from 'react-tailwindcss-datepicker';
 import { ModalContext } from '../context/ModalContext';
 import { minLength, required, trimTwo, validateEmail, validatePhoneNumber } from '../helpers/Validations';
@@ -20,15 +20,19 @@ type FormTypes = {
 }
 
 const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, setPage }: FormTypes) => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { setModal } = useContext(ModalContext)
   const [nameErrors, setNameErrors] = useState<string[]>([]);
   const [mailErrors, setMailErrors] = useState<string[]>([]);
   const [phoneErrors, setPhoneErrors] = useState<string[]>([]);
-  
+
+  console.log(location.pathname)
+
 
   const sendReservation = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
 
     const elements = e.currentTarget.elements as HTMLFormControlsCollection;
 
@@ -48,7 +52,7 @@ const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, s
     fetchAuthentication.post('/api/reservation/new', newReservation).then((res) => {
       toast.success(res.data.message)
       setModal(false);
-      return navigate('/');
+      return navigate(location.pathname === '/admin/reservations' ? '/admin/reservations' : '/');
 
     }).catch((err) => {
       console.error(err);

@@ -22,7 +22,7 @@ class Reservation extends Model
       if ($isAccepted) {
         return [
           'status' => true,
-          'message' => 'Foglalás visszavonva!',
+          'message' => 'Foglalás törölve!',
           'dev' => 'Reservation cancelled successfully!',
           'data' => $reservationId
         ];
@@ -30,7 +30,7 @@ class Reservation extends Model
     } catch (\Throwable $th) {
       return [
         'status' => false,
-        'message' => 'Foglalás visszavonásában hiba történt!',
+        'message' => 'Foglalás törlésében hiba történt!',
         'dev' => $th,
         'data' => null
       ];
@@ -82,11 +82,13 @@ class Reservation extends Model
     }
   }
 
-  public function accept($reservationId)
+  public function accept($reservationId, $admin)
   {
+
     try {
       $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
-      $stmt = $this->Pdo->prepare("UPDATE `reservations` SET `isAccepted` = '1' WHERE `id` = :reservationId");
+      $stmt = $this->Pdo->prepare("UPDATE `reservations` SET `isAccepted` = '1', `admin` = :admin WHERE `id` = :reservationId");
+      $stmt->bindParam(':admin', $admin['sub'], PDO::PARAM_INT);
       $stmt->bindParam(':reservationId', $reservationId, PDO::PARAM_INT);
       $isAccepted = $stmt->execute();
 
@@ -108,7 +110,7 @@ class Reservation extends Model
           'status' => true,
           'message' => 'Foglalás elfogadva!',
           'dev' => 'Reservation accepted successfully!',
-          'data' => $reservationId
+          'data' => $admin['sub']
         ];
       }
     } catch (\Throwable $th) {
@@ -165,9 +167,8 @@ class Reservation extends Model
 
       return $data;
     } catch (PDOException $e) {
-      // Hibakezelés
-      error_log($e->getMessage());
       throw new RuntimeException("Adatbázis hiba történt.");
+      return false;
     }
   }
 
@@ -190,8 +191,9 @@ class Reservation extends Model
   }
 
 
-  public function new()
+  public function new($admin)
   {
+
     try {
       $date = isset($_POST['date']) ? filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $start = isset($_POST['start']) ? filter_var($_POST['start'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
@@ -203,10 +205,10 @@ class Reservation extends Model
       $request = isset($_POST['request']) ? filter_var($_POST['request'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $email = isset($_POST['email']) ? filter_var($_POST['email'], FILTER_SANITIZE_EMAIL) : '';
 
-      $isAccepted = 0;
+      $isAccepted = $admin ? 1 : 0;
 
-      $stmt = $this->Pdo->prepare("INSERT INTO `reservations` (`id`, `date`, `start`, `end`, `numOfGuests`, `intervalValue`, `name`, `phone`, `request`, `email`, `isAccepted`, `createdAt`) 
-          VALUES (NULL, :date, :start, :end, :numOfGuests, :intervalValue, :name, :phone, :request, :email, :isAccepted, current_timestamp())");
+      $stmt = $this->Pdo->prepare("INSERT INTO `reservations`
+          VALUES (NULL, :date, :start, :end, :numOfGuests, :intervalValue, :name, :phone, :request, :email, :isAccepted, :admin, current_timestamp())");
 
       $stmt->bindParam(':date', $date, PDO::PARAM_STR);
       $stmt->bindParam(':start', $start, PDO::PARAM_STR);
@@ -218,6 +220,7 @@ class Reservation extends Model
       $stmt->bindParam(':request', $request, PDO::PARAM_STR);
       $stmt->bindParam(':email', $email, PDO::PARAM_STR);
       $stmt->bindParam(':isAccepted', $isAccepted, PDO::PARAM_INT);
+      $stmt->bindParam(':admin', $admin['sub'], PDO::PARAM_INT);
 
       $isSuccess = $stmt->execute();
       return [
@@ -237,7 +240,7 @@ class Reservation extends Model
 
 
 
-  public function reservations($body)
+  public function reservations($body, $capacity)
   {
     try {
       $date = $body['date'];
@@ -261,11 +264,11 @@ class Reservation extends Model
       }
 
       // Az új bontás alapján generáljuk az időintervallumokat
-      $intervals = self::generateIntervalsByOpeningHours($date, $default_interval, $opening_hours, $reservation_interval);
+      $intervals = self::generateIntervalsByOpeningHours($date, $default_interval, $opening_hours, $reservation_interval, $capacity);
 
       $reservations = $this->selectAllByRecord('reservations', 'date', $date, PDO::PARAM_STR);
 
-      $free_intervals = self::generateFreeIntervalsByCapacity($reservations, $intervals, $num_of_quests);
+      $free_intervals = self::generateFreeIntervalsByCapacity($reservations, $intervals, $num_of_quests,);
 
       return [
         'status' => true,
@@ -285,9 +288,8 @@ class Reservation extends Model
   }
 
 
-  private function generateIntervalsByOpeningHours($date, $default_interval, $dayOfTheWeek, $reservation_interval)
+  private function generateIntervalsByOpeningHours($date, $default_interval, $dayOfTheWeek, $reservation_interval, $capacity)
   {
-    $capacity = 10;
     $time_intervals = [];
     $openTime = strtotime($date . " " . $dayOfTheWeek["open"]);
     $closeTime = strtotime($date . " " . $dayOfTheWeek["close"]);

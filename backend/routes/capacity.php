@@ -2,4 +2,4 @@
 
 use App\Controllers\CapacityController;
 
-$r->addRoute('GET', '', [CapacityController::class, 'index']);
+$r->addRoute('GET', '/{date}', [CapacityController::class, 'index']);

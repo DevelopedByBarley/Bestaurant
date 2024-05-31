@@ -51,29 +51,31 @@ class AdminController extends Controller
   {
     self::initializePOST();
     $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
-    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+    $admin = $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
     $id = $vars['id'];
-    $acceptedReservation = $this->Reservation->accept($id);
+    $acceptedReservation = $this->Reservation->accept($id, $admin);
     $isSuccess = $acceptedReservation['status'];
     if ($isSuccess) {
       http_response_code(200);
       echo json_encode([
         'status' => true,
-        'message' => $acceptedReservation['message'] ?? 'Fail',
-        'dev' => $acceptedReservation['dev'] ?? 'Fail',
+        'message' => $acceptedReservation['message'] ?? null,
+        'dev' => $acceptedReservation['dev'] ?? null,
         'data' => $acceptedReservation['data']
       ]);
     } else {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => $acceptedReservation['message'] ?? 'Fail',
-        'dev' => $acceptedReservation['dev'] ?? 'Fail',
+        'message' => $acceptedReservation['message'] ?? null,
+        'dev' => $acceptedReservation['dev'] ?? null,
         'data' => null
       ]);
     }
   }
+
+
 
   public function cancelReservation($vars)
   {
@@ -84,7 +86,25 @@ class AdminController extends Controller
 
     $id = $vars['id'];
 
-    $cancelled = $this->Reservation->cancel($_POST, $id);
+    $canceled = $this->Reservation->cancel($_POST, $id);
+
+    if ($canceled) {
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'message' => $canceled['message'] ?? null,
+        'dev' => $canceled['dev'] ?? null,
+        'data' => $canceled['data'] ?? null
+      ]);
+    } else {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'message' => $canceled['message'] ?? null,
+        'dev' => $canceled['dev'] ?? null,
+        'data' => null
+      ]);
+    }
   }
   public function deleteReservation($vars)
   {
@@ -95,7 +115,25 @@ class AdminController extends Controller
 
     $id = $vars['id'];
 
-    $cancelled = $this->Reservation->delete($id);
+    $deleted = $this->Reservation->delete($id);
+
+    if ($deleted) {
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'message' => $deleted['message'] ?? null,
+        'dev' => $deleted['dev'] ?? null,
+        'data' => $deleted['data'] ?? null
+      ]);
+    } else {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'message' => $deleted['message'] ?? null,
+        'dev' => $deleted['dev'] ?? null,
+        'data' => null
+      ]);
+    }
   }
 
 
@@ -129,93 +167,32 @@ class AdminController extends Controller
       $searchResult,
       10,
       $date,
-      function ($offset, $numOfPage, $search) {
+      function () {
       }
     );
 
-    echo json_encode($reservations);
+
+
+    if (isset($searchResult) && $reservations['status'] === true) {
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'message' => "Foglalások lekérése sikeres!" ?? null,
+        'dev' => "Get reservations successfully!" ?? null,
+        'data' => $reservations['pages'] ?? null
+      ]);
+      return;
+    } else {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'message' => "Foglalások lekérése sikertelen!" ?? null,
+        'dev' => "Get reservations problem!" ?? null,
+        'data' => null
+      ]);
+    }
   }
 
-  public function holidays()
-  {
-
-    // $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
-
-    $results = $this->Holiday->holidays();
-    $holidays = $this->Model->paginate($results, 10, '', function () {
-    });
-
-
-
-    echo $this->Render->write("admin/Layout.php", [
-      "csfr" => $this->CSFRToken,
-      "count_of_reservations" => count($this->Reservation->getAllReservationsWithoutAccept()),
-      "content" => $this->Render->write("admin/pages/Holidays.php", [
-        "data" => $holidays
-      ])
-    ]);
-  }
-
-  public function openingHours()
-  {
-
-    //  $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
-    $opening_hours = $this->Model->all('opening_hours');
-
-
-
-    echo $this->Render->write("admin/Layout.php", [
-      "csfr" => $this->CSFRToken,
-      "count_of_reservations" => count($this->Reservation->getAllReservationsWithoutAccept()),
-      "content" => $this->Render->write("admin/pages/OpeningHours.php", [
-        "opening_hours" => $opening_hours
-      ])
-    ]);
-  }
-
-
-  public function capacities()
-  {
-    //  $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
-
-    $default_capacity = $this->Model->selectByRecord('capacities', 'is_default', 1, PDO::PARAM_INT)['capacity'];
-    $results = $this->Capacity->capacities();
-    $capacities = $this->Model->paginate($results, 10, '', function () {
-    });
-
-    echo $this->Render->write("admin/Layout.php", [
-      "count_of_reservations" => count($this->Reservation->getAllReservationsWithoutAccept()),
-      "csfr" => $this->CSFRToken,
-      "content" => $this->Render->write("admin/pages/Capacities.php", [
-        "csfr" => $this->CSFRToken,
-        "data" => $capacities,
-        "default_capacity" => $default_capacity
-      ])
-    ]);
-  }
-
-
-
-  public function adminList()
-  {
-
-    //  $this->Auth::checkUserIsLoggedInOrRedirect('adminId', '/admin');
-
-
-    $results = $this->Model->all('admins');
-    $admins = $this->Model->paginate($results, 10, '', function () {
-    });
-
-
-
-    echo $this->Render->write("admin/Layout.php", [
-      "csfr" => $this->CSFRToken,
-      "count_of_reservations" => count($this->Reservation->getAllReservationsWithoutAccept()),
-      "content" => $this->Render->write("admin/pages/AdminList.php", [
-        "data" => $admins
-      ])
-    ]);
-  }
 
 
 
@@ -239,14 +216,14 @@ class AdminController extends Controller
       echo json_encode([
         'status' => true,
         'accessToken' => $accessToken,
-        'message' => 'Sikeres bejelentkezés!'
+        'message' => "Sikeres bejelentkezés!"
       ]);
       return;
     } else {
       http_response_code(401);
       echo json_encode([
         'status' => false,
-        'message' => 'Hibás e-mail vagy jelszó!'
+        'message' => "Hibás e-mail vagy jelszó!"
       ]);
     }
   }
@@ -280,7 +257,9 @@ class AdminController extends Controller
 
     echo json_encode([
       'status' => true,
-      'message' => 'Sikeres kiejelentkezés!'
+      'message' => "Sikeres kiejelentkezés!",
+      'dev' => "Logout succesfully!",
+      'data' => null
     ]);
 
     return;

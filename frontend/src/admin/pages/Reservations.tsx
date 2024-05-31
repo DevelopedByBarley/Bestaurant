@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { authByToken, fetchAuthentication } from '../../services/AuthService';
 import Datepicker, { DateValueType } from 'react-tailwindcss-datepicker';
 import Pagination from '../../components/Pagination';
-import { FetchResponseTypes, ReservationsTypes } from '../../types/ReservationsTypes';
+import { ReservationsTypes } from '../../types/ReservationsTypes';
 
 import NoReservationHeader from '../components/reservations/NoReservationHeader';
 import ReservationsTable from '../components/reservations/ReservationsTable';
 import SearchBar from '../components/reservations/SearchBar';
 import Alert from '../../components/Alert';
+import { ModalContext } from '../../context/ModalContext';
+import Reservation from '../../pages/Reservation';
 
 const Reservations = () => {
+  const { modal, setModal } = useContext(ModalContext);
   const [reservations, setReservations] = useState<ReservationsTypes[]>([]);
   const [numOfPage, setNumOfPage] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -42,9 +45,8 @@ const Reservations = () => {
       const url = `/api/admin/reservations?offset=${currentPage}${dateParam}${sortParam}${searchParam}`;
 
       try {
-        const res = await fetchAuthentication.get<FetchResponseTypes>(url);
+        const res = await fetchAuthentication.get(url);
         const { data, numOfPage } = res.data;
-        console.log(res.data);
         setReservations(data);
         setNumOfPage(numOfPage);
       } catch (err) {
@@ -53,7 +55,7 @@ const Reservations = () => {
     };
 
     fetchReservations();
-  }, [currentPage, calendar, sortConfig, search, category]);
+  }, [currentPage, calendar, sortConfig, search, category, modal]);
 
   const requestSort = (key: keyof ReservationsTypes | null) => {
     let direction: 'asc' | 'desc' | null = 'desc';
@@ -68,6 +70,7 @@ const Reservations = () => {
 
   return (
     <div className="container mx-auto my-16">
+      {modal && <Reservation />}
       <div className="grid grid-cols-3">
         <div className='col-span-3 text-center mb-10 flex items-center justify-center flex-col space-y-5'>
           <h1 className='font-extrabold text-4xl'>Összes foglalás
@@ -77,14 +80,24 @@ const Reservations = () => {
               />
             </span>
           </h1>
-          <button
-            onClick={() => {
-              setCalendar({ startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0] });
-            }}
-            className='btn-green rounded-3xl'
-          >
-            Megnézem a mai napot
-          </button>
+          <div className="flex">
+            <button
+              onClick={() => {
+                setCalendar({ startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0] });
+              }}
+              className='btn-dark rounded-3xl'
+            >
+              Megnézem a mai napot
+            </button>
+            <button
+              onClick={() => {
+                setModal(true);
+              }}
+              className='btn-green rounded-3xl'
+            >
+              Vendég érkezett
+            </button>
+          </div>
         </div>
 
 

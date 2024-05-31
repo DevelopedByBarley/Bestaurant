@@ -23,6 +23,8 @@ class Capacity extends Model
     }
   }
 
+
+
   public function getDefaultCapacity()
   {
     $stmt = $this->Pdo->prepare("SELECT * FROM `default_capacities` WHERE `validFrom` <= CURDATE() ORDER BY `validFrom` DESC LIMIT 1");

@@ -67,10 +67,9 @@ class Model
     $searchCondition($offset, $numOfPage, $search);
 
 
-    // Visszatérés a lapozott eredményekkel és egyéb adatokkal
     return [
       "status" => true,
-      "data" => $pagedResults,
+      "pages" => $pagedResults,
       "numOfPage" => $numOfPage,
       "limit" => $limit
     ];

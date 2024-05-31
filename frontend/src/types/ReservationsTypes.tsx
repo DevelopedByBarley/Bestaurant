@@ -3,6 +3,7 @@
   // Definiáljuk a Reservation típust
   export type ReservationsTypes = {
     id: number;
+    admin: number;
     name: string;
     date: string;
     start: string;

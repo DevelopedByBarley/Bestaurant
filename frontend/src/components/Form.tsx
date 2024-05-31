@@ -1,12 +1,12 @@
 
 import React, { Dispatch, SetStateAction, useContext, useState } from 'react'
 import CSFR from "../components/CSFR";
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { DateValueType } from 'react-tailwindcss-datepicker';
 import { ModalContext } from '../context/ModalContext';
 import { minLength, required, trimTwo, validateEmail, validatePhoneNumber } from '../helpers/Validations';
+import { fetchAuthentication } from '../services/AuthService';
 
 type FormTypes = {
   calendar: DateValueType;
@@ -45,7 +45,7 @@ const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, s
       email: (elements.namedItem("email") as HTMLInputElement)?.value,
       request: (elements.namedItem("request") as HTMLInputElement)?.value,
     }
-    axios.post('/api/reservation/new', newReservation).then((res) => {
+    fetchAuthentication.post('/api/reservation/new', newReservation).then((res) => {
       toast.success(res.data.message)
       setModal(false);
       return navigate('/');

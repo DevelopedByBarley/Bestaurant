@@ -32,21 +32,17 @@ const PreForm: React.FC<PreFormProps> = ({
   setSelectedReservationDateRange,
 }: PreFormProps) => {
 
-
   const [capacity, setCapacity] = useState(0);
 
   useEffect(() => {
-    axios.get('/api/capacity').then(res => {
-      const { data } = res.data;
-      setCapacity(data.capacity);
-    })
-    
-  }, [setNumOfGuests])
-
-
-
-
-
+    if (calendar?.startDate) {
+      axios.get(`/api/capacity/${calendar.startDate}`).then(res => {
+        const { data } = res.data;
+        setCapacity(data);
+        setNumOfGuests(prev => (prev === null || prev > data) ? data : prev);
+      });
+    }
+  }, [calendar?.startDate, setNumOfGuests]);
 
   const handleCalendarChange = (dates: DateValueType | null) => {
     setCalendar(dates);
@@ -71,17 +67,8 @@ const PreForm: React.FC<PreFormProps> = ({
 
   const handleGuestsChange = (event: ChangeEvent<HTMLInputElement>) => {
     let newValue = parseInt(event.target.value);
-
-  
-    
-
-
     if (newValue > capacity) {
       newValue = capacity;
-    }
-
-    if (newValue.toString() !== event.target.value) {
-      event.target.value = newValue.toString();
     }
     setNumOfGuests(newValue);
     setInterval(null);
@@ -92,9 +79,6 @@ const PreForm: React.FC<PreFormProps> = ({
       setSelectedReservationDateRange(null);
     }
   };
-
-
-
 
   return (
     <div className="grid md:grid-cols-3 gap-4 p-3 dark:bg-gray-900">
@@ -124,9 +108,9 @@ const PreForm: React.FC<PreFormProps> = ({
           required
           name="numOfGuests"
           id="number-input"
-          defaultValue={numOfGuests ? numOfGuests : 1}
+          value={numOfGuests ?? capacity}
           aria-describedby="helper-text-explanation"
-          className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         />
       </div>
       <div>

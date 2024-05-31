@@ -17,8 +17,8 @@ export const fetchAuthentication = axios.create();
 
 fetchAuthentication.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem('accessToken');
-
+    const accessToken = localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null;
+    console.log(accessToken);
     if (!accessToken) {
       return config;
     }

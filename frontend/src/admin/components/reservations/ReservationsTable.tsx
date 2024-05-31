@@ -28,7 +28,6 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
 
 
 
-
   const generateModalContent = (currentReservation: ReservationsTypes | null) => {
     const acceptReservation = (e: React.FormEvent<HTMLFormElement>, id: number) => {
       setButtonPending(true);
@@ -41,12 +40,15 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
       }
 
       fetchAuthentication.post('/api/admin/reservations/accept/' + id, accept).then((res) => {
-        const { message } = res.data;
+        console.log(res.data)
+        const { message, data } = res.data;
         toast.success(message);
         setReservations((prevReservations) => {
           const next = [...prevReservations];
           const index = prevReservations.findIndex((prev) => prev.id === id);
           next[index].isAccepted = true;
+          next[index].admin = data;
+          
           return next;
         });
         // Close the modal after accepting the reservation
@@ -256,6 +258,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
                 Elfogadva <span className='text-lg mx-1'>{sortConfig.key === 'isAccepted' ? renderArrowBySortDirection() : <IoFilterOutline />}</span>
               </div>
             </th>
+            <th scope="col" className="px-6 py-3">Admin ID</th>
             <th scope="col" className="px-6 py-3">Email</th>
             <th scope="col" className="px-6 py-3">Telefonszám</th>
             <th scope="col" className="px-6 py-3">Különleges kérések</th>
@@ -271,6 +274,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.start} - {reservation.end}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.numOfGuests}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{Boolean(Number(reservation.isAccepted)) ? 'Igen' : 'Nem'}</td>
+              <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.admin}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.email}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.phone}</td>
               <td className="px-6 py-4 font-extrabold text-gray-900 whitespace-nowrap dark:text-white">{reservation.request.length !== 0 ? 'Megadva' : 'Nincs'}</td>

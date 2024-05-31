@@ -44,6 +44,7 @@ const Reservations = () => {
       try {
         const res = await fetchAuthentication.get<FetchResponseTypes>(url);
         const { data, numOfPage } = res.data;
+        console.log(res.data);
         setReservations(data);
         setNumOfPage(numOfPage);
       } catch (err) {

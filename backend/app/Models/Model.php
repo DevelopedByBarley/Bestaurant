@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Helpers\Debug;
 use App\Helpers\FileSaver;
 use App\Helpers\Mailer;
+use Exception;
 use PDO;
 use PDOException;
 
@@ -31,8 +32,6 @@ class Model
   }
 
 
-
-  // KERESÉS MEGVALÓSÍTÁSA
   public function searchBySingleEntity($table, $entity, $searched, $searchDefault)
   {
     $search = $searched ?? $searchDefault;
@@ -45,27 +44,52 @@ class Model
 
       return $data;
     } catch (PDOException $e) {
-      var_dump($e);
-      exit;
+      throw new Exception("An error occurred during the database operation in the searchBySingleEntity method: " . $e->getMessage());
     }
   }
 
 
   public function paginate($results, $limit, $search, $searchCondition)
   {
-    // Lapozáshoz szükséges változók inicializálása
+    if (empty($results)) {
+      return [
+        "status" => true,
+        "pages" => [],
+        "numOfPage" => 0,
+        "limit" => 0
+      ];
+    }
+
     $offset = isset($_GET["offset"]) ? max(1, intval($_GET["offset"])) : 1;
     $calculated = ($offset - 1) * $limit;
 
     // A lekérdezett eredmények számának meghatározása
     $countOfRecords = count($results);
+    if ($countOfRecords === 0) {
+      return [
+        "status" => false,
+        "message" => "No results found for the given search criteria.",
+        "pages" => [],
+        "numOfPage" => 0,
+        "limit" => $limit
+      ];
+    }
+
     $numOfPage = ceil($countOfRecords / $limit);
 
     // Lapozott eredmények kiválasztása a limit és offset alapján
     $pagedResults = array_slice($results, $calculated, $limit);
+    if (empty($pagedResults)) {
+      return [
+        "status" => false,
+        "message" => "No paginated results found for the given offset and limit.",
+        "pages" => [],
+        "numOfPage" => 0,
+        "limit" => $limit
+      ];
+    }
 
     $searchCondition($offset, $numOfPage, $search);
-
 
     return [
       "status" => true,
@@ -74,7 +98,6 @@ class Model
       "limit" => $limit
     ];
   }
-
 
   /*  private function searchCondition($search, $offset, $numOfPage, $today)
   {

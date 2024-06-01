@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Model;
 use DateTime;
+use Exception;
 use PDO;
 use PDOException;
 
@@ -27,13 +28,18 @@ class Capacity extends Model
 
   public function getDefaultCapacity()
   {
-    $stmt = $this->Pdo->prepare("SELECT * FROM `default_capacities` WHERE `validFrom` <= CURDATE() ORDER BY `validFrom` DESC LIMIT 1");
-    $stmt->execute();
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    try {
+      $stmt = $this->Pdo->prepare("SELECT * FROM `default_capacities` WHERE `validFrom` <= CURDATE() ORDER BY `validFrom` DESC LIMIT 1");
+      $stmt->execute();
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    return $result;
+      return $result;
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the getDefaultCapacity method: " . $e->getMessage());
+    }
   }
 
+  
   public function addDefaultCapacity()
   {
     $currDate = date('Y-m-d');

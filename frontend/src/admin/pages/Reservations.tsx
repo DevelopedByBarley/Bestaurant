@@ -46,9 +46,9 @@ const Reservations = () => {
 
       try {
         const res = await fetchAuthentication.get(url);
-        const { data, numOfPage } = res.data;
-        setReservations(data);
-        setNumOfPage(numOfPage);
+        const { data } = res.data;
+        setReservations(data.pages);
+        setNumOfPage(data.numOfPage);
       } catch (err) {
         console.error("Error fetching reservations:", err);
       }

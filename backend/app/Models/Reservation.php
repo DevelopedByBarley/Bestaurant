@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use App\Models\Model;
+use Exception;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
@@ -137,7 +138,7 @@ class Reservation extends Model
 
     // Ellenőrizzük az entitás, a sorrendezési oszlop és az irány érvényességét
     if (($entity && !in_array($entity, $allowedEntities)) || ($sort && !in_array($sort, $allowedSortColumns)) || ($order && !in_array(strtoupper($order), $allowedOrderDirections))) {
-      throw new InvalidArgumentException("Érvénytelen lekérdezési paraméterek.");
+      throw new InvalidArgumentException("Invalid query parameters .");
     }
 
     try {
@@ -167,8 +168,7 @@ class Reservation extends Model
 
       return $data;
     } catch (PDOException $e) {
-      throw new RuntimeException("Adatbázis hiba történt.");
-      return false;
+      throw new Exception("An error occurred during the database operation in the getAllReservationsByMultipleQuery method: " . $e->getMessage());
     }
   }
 

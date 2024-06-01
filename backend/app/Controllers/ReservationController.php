@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Controller;
 use App\Models\Capacity;
 use App\Models\Reservation;
+use Exception;
 
 class ReservationController extends Controller
 {
@@ -21,47 +22,54 @@ class ReservationController extends Controller
 
   public function index()
   {
-    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
-    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+    try {
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
-    $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_SPECIAL_CHARS);
-    $sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
-    $order = filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS);
-    $category = filter_input(INPUT_GET, 'category', FILTER_SANITIZE_SPECIAL_CHARS);
-    $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
+      $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_SPECIAL_CHARS);
+      $sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
+      $order = filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS);
+      $category = filter_input(INPUT_GET, 'category', FILTER_SANITIZE_SPECIAL_CHARS);
+      $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS);
 
 
-    $sort = $sort ?? 'date';
-    $order = $order ?? '';
+      $sort = $sort ?? 'date';
+      $order = $order ?? '';
 
-    $searchResult = $this->Reservation->getAllReservationsByMultipleQuery($date, $category, $search, $sort, $order);
+      $searchResult = $this->Reservation->getAllReservationsByMultipleQuery($date, $category, $search, $sort, $order);
 
-    $reservations = $this->Model->paginate(
-      $searchResult,
-      10,
-      $date,
-      function () {
+      $reservations = $this->Model->paginate(
+        $searchResult,
+        2,
+        $date,
+        function () {
+        }
+      );
+
+      if (isset($searchResult) && $reservations['status'] === true) {
+        http_response_code(200);
+        echo json_encode([
+          'status' => true,
+          'message' => "Foglalások lekérése sikeres!" ?? null,
+          'dev' => "Get reservations successfully!" ?? null,
+          'data' => $reservations ?? null
+        ]);
+        return;
+      } else {
+        http_response_code(500);
+        echo json_encode([
+          'status' => false,
+          'message' => 'Általános szerver  hiba. Kérjük próbálkozzon később',
+          'dev' => $reservations['message']
+        ]);
+        return;
       }
-    );
-
-
-
-    if (isset($searchResult) && $reservations['status'] === true) {
-      http_response_code(200);
-      echo json_encode([
-        'status' => true,
-        'message' => "Foglalások lekérése sikeres!" ?? null,
-        'dev' => "Get reservations successfully!" ?? null,
-        'data' => $reservations['pages'] ?? null
-      ]);
-      return;
-    } else {
+    } catch (Exception $e) {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => "Foglalások lekérése sikertelen!" ?? null,
-        'dev' => "Get reservations problem!" ?? null,
-        'data' => null
+        'message' => 'Adatbázis műveleti hiba, kérjük próbálkozzon később.',
+        'dev' => $e->getMessage()
       ]);
     }
   }

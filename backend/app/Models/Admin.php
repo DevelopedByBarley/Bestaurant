@@ -22,7 +22,7 @@ class Admin extends Model
       $stmt->bindParam(":password", $pw, PDO::PARAM_STR);
       $stmt->execute();
     } catch (PDOException $e) {
-      echo "An error occurred during the database operation: " . $e->getMessage();
+      throw new Exception("An error occurred during the database operation in the storeAdmin method: " . $e->getMessage());
       exit;
     }
   }
@@ -44,7 +44,7 @@ class Admin extends Model
 
       return $admin;
     } catch (PDOException $e) {
-      throw new Exception("Hiba történt az adatbázisművelet során: " . $e->getMessage());
+      throw new Exception("An error occurred during the database operation in the lognAdmin method: " . $e->getMessage());
     }
   }
 }

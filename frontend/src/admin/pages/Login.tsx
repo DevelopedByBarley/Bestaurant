@@ -36,7 +36,6 @@ const Login = () => {
     })
       .catch((err) => {
         const { response } = err
-        
         toast.error(response.data.message);
         navigate('/admin');
         console.error(err);

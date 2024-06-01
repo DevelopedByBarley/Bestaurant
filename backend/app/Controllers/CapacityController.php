@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\Controller;
 use App\Models\Capacity;
+use Exception;
 use PDO;
 
 class CapacityController extends Controller
@@ -21,30 +22,31 @@ class CapacityController extends Controller
 
   public function index($vars)
   {
-
-    $date = isset($vars['date']) ? filter_var($vars['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
-    $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '')[0]['capacity'] ?? null;
-    $default = $this->Capacity->getDefaultCapacity()['capacity'];
-    $current = !empty($exception) ? $exception : $default;
-
-    if (!empty($current) && $current) {
-      http_response_code(200);
-      echo json_encode([
-        'status' => true,
-        'message' => $current['message'] ?? 'Fail',
-        'dev' => $current['dev'] ?? 'Fail',
-        'data' => $current
-      ]);
-    } else {
+    try {
+      $date = isset($vars['date']) ? filter_var($vars['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+      $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '');
+      $default = $this->Capacity->getDefaultCapacity();
+      $current = !empty($exception) ? $exception[0]['capacity'] : ($default ? $default['capacity'] : null);
+      if ($current !== null) {
+        http_response_code(200);
+        echo json_encode([
+          'status' => true,
+          'message' => 'Kapacitás lekérése sikeres!',
+          'dev' => 'Capacity fetched succsefully!',
+          'data' => $current
+        ]);
+      } 
+    } catch (Exception $e) {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => 'Szerver probléma , sikertelen kapacitás lekérése!',
-        'dev' => 'Server problem, capacity fetch fail!',
+        'message' => 'Szerver probléma, hiba történt a feldolgozás során!',
+        'dev' => $e->getMessage(),
         'data' => null
       ]);
     }
   }
+
 
   public function updateCapacity()
   {

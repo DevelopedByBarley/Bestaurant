@@ -6,9 +6,40 @@ AuthService.tsx:
 
 
 (BACKEND)
+
+Model.php 
+    
+    - searchBySingleEntity error handling rework
+    - paginate error handling rework
+  ------------------------------------------------------------
+
+
 AdminController.php
-  - login() error handling rework
+    
+    - login() error handling rework
 
 
 Admin.php (Model)
-  - loginAdmin() error handling rework
+  
+    - loginAdmin()  exceptions added
+
+ ------------------------------------------------------------
+CapacityController.php  
+   
+    - index() error handling rework
+  
+ Capacity.php (MModel)
+    
+    - getDefaultCapacity()  exceptions added
+
+
+ ------------------------------------------------------------
+
+ ReservationController.php
+    
+    -index() error handling rework
+    
+
+  Reservation.php (Model)
+
+    - getAllReservationsByMultipleQuery() exceptions added

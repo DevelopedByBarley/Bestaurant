@@ -42,7 +42,7 @@ const Reservations = () => {
       const searchParam = search !== '' ? `&category=${category}&search=${search}` : '';
 
 
-      const url = `/api/admin/reservations?offset=${currentPage}${dateParam}${sortParam}${searchParam}`;
+      const url = `/api/reservation?offset=${currentPage}${dateParam}${sortParam}${searchParam}`;
 
       try {
         const res = await fetchAuthentication.get(url);

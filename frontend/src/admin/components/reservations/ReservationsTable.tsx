@@ -39,7 +39,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
         csrf: (elements.namedItem("csrf") as HTMLInputElement)?.value,
       }
 
-      fetchAuthentication.post('/api/admin/reservations/accept/' + id, accept).then((res) => {
+      fetchAuthentication.post('/api/reservation/accept/' + id, accept).then((res) => {
         console.log(res.data)
         const { message, data } = res.data;
         toast.success(message);
@@ -69,7 +69,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
         message: (elements.namedItem("message") as HTMLInputElement)?.value,
       }
 
-      fetchAuthentication.post(`/api/admin/reservations/cancel/${id}`, cancellation).then(() => {
+      fetchAuthentication.post(`/api/reservation/cancel/${id}`, cancellation).then(() => {
         setReservations((prevReservations) => {
           const next = [...prevReservations];
           const index = prevReservations.findIndex((prev) => prev.id === id);
@@ -94,7 +94,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
         csrf: (elements.namedItem("csrf") as HTMLInputElement)?.value,
       }
 
-      fetchAuthentication.post(`/api/admin/reservations/delete/${id}`, deleted).then(() => {
+      fetchAuthentication.post(`/api/reservation/delete/${id}`, deleted).then(() => {
         setReservations((prevReservations) => {
           const next = [...prevReservations];
           const index = prevReservations.findIndex((prev) => prev.id === id);

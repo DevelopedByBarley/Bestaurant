@@ -8,6 +8,7 @@ import { AdminJwtPayloadType } from '../types/AdminTypes';
 export function authByToken() {
   const accessToken = localStorage.getItem('accessToken');
   if (!accessToken || accessToken === 'undefined') {
+    localStorage.removeItem('accessToken');
     window.location.href = '/admin'
     return null;
   } else return jwtDecode<AdminJwtPayloadType>(accessToken);

@@ -13,7 +13,7 @@ const Login = () => {
   const { setLoggedIn } = useAdminContext();
 
   useEffect(() => {
-    if(localStorage.getItem('accessToken') && localStorage.getItem('accessToken') !== 'undefined' ) navigate('/admin/reservations');
+    if (localStorage.getItem('accessToken') && localStorage.getItem('accessToken') !== 'undefined') navigate('/admin/reservations');
   }, [navigate])
 
 
@@ -35,7 +35,9 @@ const Login = () => {
       navigate('/admin/reservations');
     })
       .catch((err) => {
-        toast.error('Hibás fehasználónév vagy jelszó!');
+        const { response } = err
+        
+        toast.error(response.data.message);
         navigate('/admin');
         console.error(err);
         return;
@@ -54,7 +56,7 @@ const Login = () => {
               Sign in to your account
             </h1>
             <form className="space-y-4 md:space-y-6" onSubmit={loginAdmin}>
-              <CSFR dependency={''}/>
+              <CSFR dependency={''} />
               <div>
                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
                 <input ref={nameRef} type="text" name="name" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" />

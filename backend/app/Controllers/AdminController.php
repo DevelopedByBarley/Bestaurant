@@ -8,6 +8,7 @@ use App\Models\Capacity;
 use App\Models\Holiday;
 use App\Models\Reservation;
 use DateTime;
+use Exception;
 use PDO;
 
 class AdminController extends Controller
@@ -59,7 +60,7 @@ class AdminController extends Controller
     }
   }
 
-  
+
 
 
 
@@ -72,26 +73,34 @@ class AdminController extends Controller
 
   public function login()
   {
-    session_start();
-    $this->initializePOST();
-    $admin = $this->Admin->loginAdmin($_POST);
+    try {
+      session_start();
+      $this->initializePOST();
+      $admin = $this->Admin->loginAdmin($_POST);
 
-    if ($admin) {
-      $this->CSFRToken->check();
-      $accessToken = $this->Auth->generateAccessToken($admin);
-      $this->Auth->generateRefreshToken($admin);
-      http_response_code(200);
-      echo json_encode([
-        'status' => true,
-        'accessToken' => $accessToken,
-        'message' => "Sikeres bejelentkezés!"
-      ]);
-      return;
-    } else {
-      http_response_code(401);
+      if ($admin) {
+        $this->CSFRToken->check();
+        $accessToken = $this->Auth->generateAccessToken($admin);
+        $this->Auth->generateRefreshToken($admin);
+        http_response_code(200);
+        echo json_encode([
+          'status' => true,
+          'accessToken' => $accessToken,
+          'message' => "Sikeres bejelentkezés!"
+        ]);
+      } else {
+        http_response_code(401);
+        echo json_encode([
+          'status' => false,
+          'message' => "Hibás e-mail vagy jelszó!"
+        ]);
+      }
+    } catch (Exception $e) {
+      http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => "Hibás e-mail vagy jelszó!"
+        'message' => 'Adatbázis műveleti hiba, kérjük próbálkozzon később.',
+        'dev' => $e->getMessage()
       ]);
     }
   }
@@ -106,7 +115,6 @@ class AdminController extends Controller
     $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
     $this->CSFRToken->check();
 
-    // Ellenőrizzük, hogy a session már el lett-e indítva
     if (session_status() == PHP_SESSION_NONE) {
       session_start();
     }
@@ -130,6 +138,5 @@ class AdminController extends Controller
       'data' => null
     ]);
 
-    return;
   }
 }

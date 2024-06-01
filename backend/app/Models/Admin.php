@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Model;
+use Exception;
 use PDO;
 use PDOException;
 
@@ -41,13 +42,9 @@ class Admin extends Model
         return false;
       }
 
-      
       return $admin;
     } catch (PDOException $e) {
-      echo "An error occurred during the database operation: " . $e->getMessage();
-      exit;
+      throw new Exception("Hiba történt az adatbázisművelet során: " . $e->getMessage());
     }
   }
-
-
 }

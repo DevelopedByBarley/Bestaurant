@@ -8,121 +8,12 @@ use Exception;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
-use RuntimeException;
 
 class Reservation extends Model
 {
-  public function delete($reservationId)
-  {
-    try {
-      $stmt = $this->Pdo->prepare("DELETE FROM reservations WHERE `reservations`.`id` = :reservationId");
-      $stmt->bindParam(":reservationId", $reservationId, PDO::PARAM_STR);
-      $isAccepted = $stmt->execute();
-
-
-      if ($isAccepted) {
-        return [
-          'status' => true,
-          'message' => 'Foglalás törölve!',
-          'dev' => 'Reservation cancelled successfully!',
-          'data' => $reservationId
-        ];
-      }
-    } catch (\Throwable $th) {
-      return [
-        'status' => false,
-        'message' => 'Foglalás törlésében hiba történt!',
-        'dev' => $th,
-        'data' => null
-      ];
-    }
-  }
-
-
-  public function cancel($body, $reservationId)
-  {
-    $message = isset($body['message']) ? filter_var($body['message'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
-
-    try {
-      $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
-
-      $stmt = $this->Pdo->prepare("DELETE FROM reservations WHERE `reservations`.`id` = :reservationId");
-      $stmt->bindParam(":reservationId", $reservationId, PDO::PARAM_STR);
-      $isAccepted = $stmt->execute();
 
 
 
-      if ($isAccepted) {
-        $this->Mailer->renderAndSend(
-          'CancelReservation',
-          [
-            'name' => $reservation['name'],
-            'message' => $message,
-            'date' => $reservation['date'],
-            'start' => $reservation['start'],
-            'end' => $reservation['end']
-          ],
-          $reservation['email'],
-          'Foglalás lemondva'
-        );
-
-        return [
-          'status' => true,
-          'message' => 'Foglalás visszavonva!',
-          'dev' => 'Reservation cancelled successfully!',
-          'data' => $reservationId
-        ];
-      }
-    } catch (\Throwable $th) {
-      return [
-        'status' => false,
-        'message' => 'Foglalás visszavonásában hiba történt!',
-        'dev' => $th,
-        'data' => null
-      ];
-    }
-  }
-
-  public function accept($reservationId, $admin)
-  {
-
-    try {
-      $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
-      $stmt = $this->Pdo->prepare("UPDATE `reservations` SET `isAccepted` = '1', `admin` = :admin WHERE `id` = :reservationId");
-      $stmt->bindParam(':admin', $admin['sub'], PDO::PARAM_INT);
-      $stmt->bindParam(':reservationId', $reservationId, PDO::PARAM_INT);
-      $isAccepted = $stmt->execute();
-
-
-      $this->Mailer->renderAndSend(
-        'AcceptReservation',
-        [
-          'name' => $reservation['name'],
-          'date' => $reservation['date'],
-          'start' => $reservation['start'],
-          'end' => $reservation['end']
-        ],
-        $reservation['email'],
-        'Foglalás elfogadva'
-      );
-
-      if ($isAccepted) {
-        return [
-          'status' => true,
-          'message' => 'Foglalás elfogadva!',
-          'dev' => 'Reservation accepted successfully!',
-          'data' => $admin['sub']
-        ];
-      }
-    } catch (\Throwable $th) {
-      return [
-        'status' => false,
-        'message' => 'Foglalás elfogadásában hiba történt!',
-        'dev' => $th,
-        'data' => null
-      ];
-    }
-  }
 
   public function getAllReservationsByMultipleQuery($date, $entity, $searched, $sort, $order)
   {
@@ -172,24 +63,46 @@ class Reservation extends Model
     }
   }
 
-
-
-
-  public function getAllReservationsWithoutAccept()
+  public function reservations($body, $capacity)
   {
     try {
-      $stmt = $this->Pdo->prepare("SELECT * FROM `reservations` WHERE isAccepted = 0");
-      $stmt->execute();
-      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      $date = $body['date'];
+      $reservation_interval = (int)$body['interval'] * 60 * 60;
+      $default_interval = 15 * 60; // Negyed óra másodpercben
+      $num_of_quests = (int)$body['numOfGuests'];
 
-      return $results;
-    } catch (PDOException  $e) {
+      $holiday_date = $this->selectByRecord('holidays', 'date', $date, PDO::PARAM_STR);
 
-      echo "An error occurred during the database operation:" . $e->getMessage();
-      return false;
+      if ($holiday_date && $holiday_date['isHoliday']) {
+        return [
+          'status' => true,
+          'message' => $holiday_date['description'],
+          'isHoliday' => true,
+          'dev' => 'Holiday!',
+        ];
+      } elseif ($holiday_date && !$holiday_date['isHoliday']) {
+        $opening_hours = $holiday_date;
+      } else {
+        $opening_hours = self::getOpeningHoursByDate($date);
+      }
+
+      // Az új bontás alapján generáljuk az időintervallumokat
+      $intervals = self::generateIntervalsByOpeningHours($date, $default_interval, $opening_hours, $reservation_interval, $capacity);
+
+      $reservations = $this->selectAllByRecord('reservations', 'date', $date, PDO::PARAM_STR);
+
+      $free_intervals = self::generateFreeIntervalsByCapacity($reservations, $intervals, $num_of_quests,);
+
+      return [
+        'status' => true,
+        'dev' => 'Get free time intervals successfully!',
+        'message' => $holiday_date && !$holiday_date['isHoliday'] ? $holiday_date['description'] : null,
+        'data' => $free_intervals
+      ];
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the reservations  method in ReservationModel: " . $e->getMessage());
     }
   }
-
 
   public function new($admin)
   {
@@ -222,68 +135,90 @@ class Reservation extends Model
       $stmt->bindParam(':isAccepted', $isAccepted, PDO::PARAM_INT);
       $stmt->bindParam(':admin', $admin['sub'], PDO::PARAM_INT);
 
-      $isSuccess = $stmt->execute();
-      return [
-        'isSuccess' => $isSuccess,
-        'message' => 'Időpont sikeresen lefoglalva!',
-        'dev' => 'Reservation created succesfully!',
-      ];
+      $stmt->execute();
     } catch (PDOException $e) {
-      return [
-        'isSuccess' => false,
-        'message' => 'Időpont foglalása sikertelen!',
-        'dev' => $e->getMessage(),
-      ];
+      throw new Exception("An error occurred during the database operation in the new  method in ReservationModel: " . $e->getMessage());
+    }
+  }
+  public function accept($reservationId, $admin)
+  {
+
+    try {
+      $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
+      $stmt = $this->Pdo->prepare("UPDATE `reservations` SET `isAccepted` = '1', `admin` = :admin WHERE `id` = :reservationId");
+      $stmt->bindParam(':admin', $admin['sub'], PDO::PARAM_INT);
+      $stmt->bindParam(':reservationId', $reservationId, PDO::PARAM_INT);
+      $isAccepted = $stmt->execute();
+
+
+      if ($isAccepted) {
+
+        $this->Mailer->renderAndSend(
+          'AcceptReservation',
+          [
+            'name' => $reservation['name'],
+            'date' => $reservation['date'],
+            'start' => $reservation['start'],
+            'end' => $reservation['end']
+          ],
+          $reservation['email'],
+          'Foglalás elfogadva'
+        );
+
+        return $admin['sub'];
+      }
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the accept method in Reservation Model: " . $e->getMessage());
     }
   }
 
+  public function cancel($body, $reservationId)
+  {
+    $message = isset($body['message']) ? filter_var($body['message'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+
+    try {
+      $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
+
+      $stmt = $this->Pdo->prepare("DELETE FROM reservations WHERE `reservations`.`id` = :reservationId");
+      $stmt->bindParam(":reservationId", $reservationId, PDO::PARAM_STR);
+      $isAccepted = $stmt->execute();
 
 
 
-  public function reservations($body, $capacity)
+      if ($isAccepted) {
+        $this->Mailer->renderAndSend(
+          'CancelReservation',
+          [
+            'name' => $reservation['name'],
+            'message' => $message,
+            'date' => $reservation['date'],
+            'start' => $reservation['start'],
+            'end' => $reservation['end']
+          ],
+          $reservation['email'],
+          'Foglalás lemondva'
+        );
+
+        return $reservationId;
+      }
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the cancel method in ReservationModel: " . $e->getMessage());
+    }
+  }
+
+  public function delete($reservationId)
   {
     try {
-      $date = $body['date'];
-      $reservation_interval = (int)$body['interval'] * 60 * 60;
-      $default_interval = 15 * 60; // Negyed óra másodpercben
-      $num_of_quests = (int)$body['numOfGuests'];
+      $stmt = $this->Pdo->prepare("DELETE FROM reservations WHERE `reservations`.`id` = :reservationId");
+      $stmt->bindParam(":reservationId", $reservationId, PDO::PARAM_STR);
+      $isAccepted = $stmt->execute();
 
-      $holiday_date = self::getDayIsHoliday($date);
 
-      if ($holiday_date && $holiday_date['isHoliday']) {
-        echo json_encode([
-          'status' => false,
-          'message' => $holiday_date['description'],
-          'dev' => 'Holiday!',
-        ]);
-        exit;
-      } elseif ($holiday_date && !$holiday_date['isHoliday']) {
-        $opening_hours = $holiday_date;
-      } else {
-        $opening_hours = self::getOpeningHoursByDate($date);
+      if ($isAccepted) {
+        return  $reservationId;
       }
-
-      // Az új bontás alapján generáljuk az időintervallumokat
-      $intervals = self::generateIntervalsByOpeningHours($date, $default_interval, $opening_hours, $reservation_interval, $capacity);
-
-      $reservations = $this->selectAllByRecord('reservations', 'date', $date, PDO::PARAM_STR);
-
-      $free_intervals = self::generateFreeIntervalsByCapacity($reservations, $intervals, $num_of_quests,);
-
-      return [
-        'status' => true,
-        'message' => 'Időpontok lekérése sikeres!',
-        'dev' => 'Get free time intervals successfully!',
-        'data' => $free_intervals
-      ];
     } catch (PDOException $e) {
-      // Adatbázis hiba kezelése
-      echo json_encode([
-        'status' => false,
-        'message' => 'Adatbázis hiba történt',
-        'dev' =>  $e->getMessage(),
-      ]);
-      exit;
+      throw new Exception("An error occurred during the database operation in the delete method in ReservationModel: " . $e->getMessage());
     }
   }
 
@@ -312,22 +247,16 @@ class Reservation extends Model
     return $time_intervals;
   }
 
-
-
-  private function getDayIsHoliday($date)
-  {
-    $isHoliday = $this->selectByRecord('holidays', 'date', $date, PDO::PARAM_STR);
-
-    return $isHoliday;
-  }
-
-
   private function getOpeningHoursByDate($date)
   {
-    $day = date("l", strtotime($date));
-    $opening_hours = $this->selectByRecord('opening_hours', 'day', $day, PDO::PARAM_STR);
+    try {
+      $day = date("l", strtotime($date));
+      $opening_hours = $this->selectByRecord('opening_hours', 'day', $day, PDO::PARAM_STR);
 
-    return $opening_hours;
+      return $opening_hours;
+    } catch (Exception $e) {
+      throw new Exception("An error occurred during the database operation in the getOpeningHours method: " . $e->getMessage());
+    }
   }
 
 

@@ -76,29 +76,31 @@ class ReservationController extends Controller
 
   public function getReservations()
   {
-    self::initializePOST();
-    $date = isset($_POST['date']) ? filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
-    $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '')[0]['capacity'] ?? null;
-    $default = $this->Capacity->getDefaultCapacity()['capacity'];
-    $current = !empty($exception) ? $exception : $default;
+    try {
+      self::initializePOST();
+      $date = isset($_POST['date']) ? filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+      $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '')[0]['capacity'] ?? null;
+      $default = $this->Capacity->getDefaultCapacity()['capacity'];
+      $current = !empty($exception) ? $exception : $default;
 
-    $reservations = $this->Reservation->reservations($_POST, $current);
-    $isSuccess = $reservations['status'];
+      $reservations = $this->Reservation->reservations($_POST, $current);
+      $isSuccess = $reservations['status'];
 
-    if ($isSuccess) {
-      http_response_code(200);
-      echo json_encode([
-        'status' => true,
-        'message' => $reservations['message'] ?? 'Fail',
-        'dev' => $reservations['dev'] ?? 'Fail',
-        'data' => $reservations['data']
-      ]);
-    } else {
+
+      if ($isSuccess) {
+        http_response_code(200);
+        echo json_encode([
+          'message' => $reservations['message'] ?? null,
+          'dev' => $reservations['dev'] ?? 'Fail',
+          'isHoliday' => $reservations['isHoliday'] ?? false,
+          'data' => $reservations['data'] ?? null,
+        ]);
+      }
+    } catch (Exception $e) {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => $reservation['message'] ?? 'Fail',
-        'dev' => $reservation['dev'] ?? 'Fail',
+        'dev' => $e->getMessage(),
         'data' => null
       ]);
     }
@@ -106,64 +108,62 @@ class ReservationController extends Controller
 
   public function store()
   {
-    self::initializePOST();
-    $this->CSFRToken->check();
 
-    $headers = apache_request_headers();
-    $auth = isset($headers['authorization']) ? $headers['authorization'] : null;
-    $admin = null;
+    try {
+      self::initializePOST();
+      $this->CSFRToken->check();
 
-    if ($auth) {
-      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
-      $admin = $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
-    }
+      $headers = apache_request_headers();
+      $auth = isset($headers['authorization']) ? $headers['authorization'] : null;
+      $admin = null;
+
+      if ($auth) {
+        $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+        $admin = $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+      }
+
+      $this->Reservation->new($admin);
 
 
-
-    $reservation =  $this->Reservation->new($admin);
-    if ($reservation['isSuccess']) {
       http_response_code(200);
       echo json_encode([
         'status' => true,
-        'message' => $reservation['message'] ?? 'Fail',
-        'dev' => $reservation['dev'] ?? 'Fail',
+        'message' => 'Foglalás leadva!',
+        'dev' => 'Reservation created succesfully!',
         'data' => null
       ]);
-    } else {
+    } catch (Exception $e) {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => $reservation['message'] ?? 'Fail',
-        'dev' => $reservation['dev'] ?? 'Fail',
-        'data' => null
+        'dev' => $e->getMessage(),
       ]);
     }
   }
 
   public function acceptReservation($vars)
   {
-    self::initializePOST();
-    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
-    $admin = $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
-    $id = $vars['id'];
-    $acceptedReservation = $this->Reservation->accept($id, $admin);
-    $isSuccess = $acceptedReservation['status'];
-    if ($isSuccess) {
+    try {
+      self::initializePOST();
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $admin = $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+
+      $id = $vars['id'];
+      $acceptedReservationWithAdminId = $this->Reservation->accept($id, $admin);
+
       http_response_code(200);
       echo json_encode([
         'status' => true,
-        'message' => $acceptedReservation['message'] ?? null,
-        'dev' => $acceptedReservation['dev'] ?? null,
-        'data' => $acceptedReservation['data']
+        'message' => 'Foglalás elfogadva!',
+        'dev' => 'Reservation accepted successfully!',
+        'data' => $acceptedReservationWithAdminId
       ]);
-    } else {
+    } catch (Exception $e) {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => $acceptedReservation['message'] ?? null,
-        'dev' => $acceptedReservation['dev'] ?? null,
-        'data' => null
+        'dev' => $e->getMessage(),
       ]);
     }
   }
@@ -172,60 +172,59 @@ class ReservationController extends Controller
 
   public function cancelReservation($vars)
   {
-    self::initializePOST();
-    $this->CSFRToken->check();
-    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
-    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
-    $id = $vars['id'];
+    try {
+      self::initializePOST();
+      $this->CSFRToken->check();
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
-    $canceled = $this->Reservation->cancel($_POST, $id);
+      $id = $vars['id'];
 
-    if ($canceled) {
+      $canceled = $this->Reservation->cancel($_POST, $id);
+
       http_response_code(200);
       echo json_encode([
         'status' => true,
-        'message' => $canceled['message'] ?? null,
-        'dev' => $canceled['dev'] ?? null,
-        'data' => $canceled['data'] ?? null
+        'data' => $canceled ?? null
       ]);
-    } else {
+    } catch (\Throwable $th) {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => $canceled['message'] ?? null,
         'dev' => $canceled['dev'] ?? null,
-        'data' => null
       ]);
     }
   }
+
+
+
   public function deleteReservation($vars)
   {
-    self::initializePOST();
-    $this->CSFRToken->check();
-    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
-    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
-    $id = $vars['id'];
+    try {
+      self::initializePOST();
+      $this->CSFRToken->check();
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
-    $deleted = $this->Reservation->delete($id);
+      $id = $vars['id'];
 
-    if ($deleted) {
+      $deleted = $this->Reservation->delete($id);
+
       http_response_code(200);
       echo json_encode([
         'status' => true,
-        'message' => $deleted['message'] ?? null,
-        'dev' => $deleted['dev'] ?? null,
-        'data' => $deleted['data'] ?? null
+        'data' => $deleted ?? null
       ]);
-    } else {
+    } catch (Exception $e) {
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => $deleted['message'] ?? null,
-        'dev' => $deleted['dev'] ?? null,
-        'data' => null
+        'dev' => $e->getMessage()
       ]);
     }
+
+
   }
 }

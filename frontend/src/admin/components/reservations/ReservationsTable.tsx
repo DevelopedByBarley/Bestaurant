@@ -52,7 +52,8 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
           return next;
         });
         // Close the modal after accepting the reservation
-      }).catch(() => toast.error('Elutasítva!')).finally(() => {
+      }).catch(() => toast.error('Általános szerver hiba!')).finally(() => {
+        
         setButtonPending(false);
         setShow(false);
       })
@@ -76,7 +77,9 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
           next.splice(index, 1);
           return next;
         });
-      }).catch(() => toast.error('Elutasítva!')).finally(() => {
+
+        toast.success('Foglalás sikeresen visszavonva!');
+      }).catch(() => toast.error('Általános szerver hiba!')).finally(() => {
         setButtonPending(false);
         setShow(false);
       })
@@ -101,7 +104,8 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
           next.splice(index, 1);
           return next;
         });
-      }).catch(() => toast.error('Elutasítva!')).finally(() => {
+        toast.success('Foglalás sikeresen törölve!');
+      }).catch(() => toast.error('Általános szerver hiba!')).finally(() => {
         setButtonPending(false);
         setShow(false);
       })

@@ -65,6 +65,8 @@ const PreForm: React.FC<PreFormProps> = ({
     }
   };
 
+
+
   const handleGuestsChange = (event: ChangeEvent<HTMLInputElement>) => {
     let newValue = parseInt(event.target.value);
     if (newValue > capacity) {

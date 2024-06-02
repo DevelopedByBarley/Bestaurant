@@ -132,7 +132,7 @@ class Model
       return $results;
     } catch (PDOException  $e) {
 
-      echo "An error occurred during the database operation:" . $e->getMessage();
+      throw new Exception("An error occurred during the database operation in the all method: " . $e->getMessage());
       return false;
     }
   }
@@ -147,8 +147,8 @@ class Model
       $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
       return $result;
-    } catch (\Throwable $th) {
-      var_dump($th);
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the selectByRecord method: " . $e->getMessage());
     }
   }
 
@@ -160,9 +160,8 @@ class Model
       $stmt->execute();
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       return $result;
-    } catch (\Throwable $th) {
-      var_dump($th);
-      return false;
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the selectAllByRecord method: " . $e->getMessage());
     }
   }
 

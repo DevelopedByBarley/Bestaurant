@@ -39,14 +39,19 @@ const Reservation = () => {
       axios.post('/api/reservation', reservationData)
         .then(res => {
           const { data } = res.data;
-          if (res.status === 500) {
+          console.log(res);
+          if(res.data.isHoliday) {
             toast.info(res.data.message);
             return;
+          }
+          if (res.data.message) {
+            toast.info(res.data.message);
           }
           setFreeDates(data)
           setPage(prev => prev + 1);
         })
         .catch(error => {
+          toast.error('Adatbázis műveleti hiba, kérjük próbálkozzon később.');
           console.error('Error while fetching free intervals:', error);
         });
     } else {

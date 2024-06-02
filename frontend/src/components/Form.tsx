@@ -49,14 +49,14 @@ const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, s
       email: (elements.namedItem("email") as HTMLInputElement)?.value,
       request: (elements.namedItem("request") as HTMLInputElement)?.value,
     }
-    fetchAuthentication.post('/api/reservation/new', newReservation).then((res) => {
-      toast.success(res.data.message)
+    fetchAuthentication.post('/api/reservation/new', newReservation).then(() => {
+      toast.success('Időpont sikeresen lefoglalva. A foglalás részleteiről e-mailt küldtünk')
       setModal(false);
       return navigate(location.pathname === '/admin/reservations' ? '/admin/reservations' : '/');
 
     }).catch((err) => {
       console.error(err);
-      toast.error('Téma hozzáadása sikertelen!');
+      toast.error('Általános szerver hiba. Kérjük próbálkozzon később');
     })
   }
 

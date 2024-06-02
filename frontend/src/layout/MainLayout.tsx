@@ -13,7 +13,7 @@ const MainLayout = () => {
       {/*  <Footer /> */}
       <ToastContainer
         position="top-center"
-        autoClose={2500}
+        autoClose={3500}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss

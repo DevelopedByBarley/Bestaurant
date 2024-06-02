@@ -142,7 +142,6 @@ class Reservation extends Model
   }
   public function accept($reservationId, $admin)
   {
-
     try {
       $reservation = $this->selectByRecord('reservations', 'id', $reservationId, PDO::PARAM_INT);
       $stmt = $this->Pdo->prepare("UPDATE `reservations` SET `isAccepted` = '1', `admin` = :admin WHERE `id` = :reservationId");

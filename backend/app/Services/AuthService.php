@@ -11,6 +11,7 @@ class AuthService
 {
   public function generateAccessToken($user)
   {
+    
 
     $key = $_SERVER["JWT_SECRET"];
     $payload = [

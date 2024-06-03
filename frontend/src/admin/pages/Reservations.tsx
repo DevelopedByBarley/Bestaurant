@@ -71,6 +71,7 @@ const Reservations = () => {
   return (
     <div className="container mx-auto my-16">
       {modal && <Reservation />}
+
       <div className="grid grid-cols-3">
         <div className='col-span-3 text-center mb-10 flex items-center justify-center flex-col space-y-5'>
           <h1 className='font-extrabold text-4xl'>Összes foglalás

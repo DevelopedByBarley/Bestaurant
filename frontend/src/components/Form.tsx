@@ -50,7 +50,7 @@ const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, s
       request: (elements.namedItem("request") as HTMLInputElement)?.value,
     }
     fetchAuthentication.post('/api/reservation/new', newReservation).then(() => {
-      toast.success('Időpont sikeresen lefoglalva. A foglalás részleteiről e-mailt küldtünk')
+      toast.success('Időpont foglalási kérelme megtörtént. A foglalás részleteiről e-mailt küldünk miután az étterem elfogadta és véglegesítette.')
       setModal(false);
       return navigate(location.pathname === '/admin/reservations' ? '/admin/reservations' : '/');
 

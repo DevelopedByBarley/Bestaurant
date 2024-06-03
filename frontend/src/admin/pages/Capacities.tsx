@@ -3,9 +3,11 @@ import Alert from '../../components/Alert';
 import axios from 'axios';
 import { authByToken } from '../../services/AuthService';
 import Error from '../../pages/Error';
+import { toast } from 'react-toastify';
 
 const Capacities = () => {
-  const [capacity, setCapacity] = useState(null);
+  const [defaultCapacity, setDefaultCapacity] = useState(null);
+  const [capacities, setCapacities] = useState([]);
   const [defaultActive, setDefaultActive] = useState(false);
   const [adminLevel, setAdminLevel] = useState<number | null>(null);
 
@@ -16,12 +18,20 @@ const Capacities = () => {
       setAdminLevel(admin.level)
     }
 
+
     axios.get('/api/capacity').then(res => {
-      const { data } = res.data;
-      setCapacity(data.capacity);
-    });
+      const { defaultCapacity, exceptions } = res.data;
+      console.log(defaultCapacity);
+      setDefaultCapacity(defaultCapacity.capacity);
+      setCapacities(exceptions);
+    }).catch((err) => {
+      toast.error('Általános szerver hiba.');
+      console.error(err);
+    })
 
   }, []);
+
+  
 
   return (
     <>
@@ -39,13 +49,13 @@ const Capacities = () => {
             </span>
           </h1>
 
-          {capacity !== null ? (
+          {defaultCapacity !== null ? (
             <form className="w-full max-w-52">
               <h1 className='font-bold text-2xl'>Alap kapacitás</h1>
               <div className="flex items-center border-b border-teal-500 py-2">
                 <input
                   disabled={!defaultActive}
-                  defaultValue={capacity}
+                  defaultValue={defaultCapacity}
                   className={`appearance-none bg-transparent border-none w-full text-gray-700  ${!defaultActive ? 'bg-gray-200' : ''} py-3 mr-3  px-2 leading-tight focus:outline-none`}
                   type="number"
                   aria-label="Capacity"
@@ -84,7 +94,7 @@ const Capacities = () => {
             <div>Loading...</div> // Adat betöltése közben egy egyszerű "Loading..." üzenet
           )}
         </div>
-      ) : (< Error/>)}
+      ) : (< Error />)}
     </>
   );
 }

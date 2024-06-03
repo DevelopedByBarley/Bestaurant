@@ -49,7 +49,7 @@ class Model
   }
 
 
-  public function paginate($results, $limit, $search, $searchCondition)
+  public function paginate($results, $limit, $search = '', $searchCondition = null)
   {
     if (empty($results)) {
       return [
@@ -89,7 +89,7 @@ class Model
       ];
     }
 
-    $searchCondition($offset, $numOfPage, $search);
+    if($searchCondition) $searchCondition($offset, $numOfPage, $search);
 
     return [
       "status" => true,

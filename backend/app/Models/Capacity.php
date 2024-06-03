@@ -19,8 +19,7 @@ class Capacity extends Model
 
       return $results;
     } catch (PDOException $e) {
-      echo "An error occurred during the database operation:" . $e->getMessage();
-      return false;
+      echo "An error occurred during the database operation capacities method in Model:" . $e->getMessage();
     }
   }
 
@@ -39,7 +38,7 @@ class Capacity extends Model
     }
   }
 
-  
+
   public function addDefaultCapacity()
   {
     $currDate = date('Y-m-d');

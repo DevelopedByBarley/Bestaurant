@@ -17,6 +17,27 @@ class CapacityController extends Controller
     parent::__construct();
   }
 
+  public function getAllCapacities()
+  {
+    try {
+      $defaultCapacity = $this->Capacity->getDefaultCapacity();
+      $results = $this->Capacity->capacities();
+      $exceptionsOfCapacity = $this->Model->paginate($results, 10);
+
+      http_response_code(200);
+      echo json_encode([
+        "defaultCapacity" => $defaultCapacity,
+        "exceptions" => $exceptionsOfCapacity
+      ]);
+    } catch (Exception $e) {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'dev' => $e->getMessage()
+      ]);
+    }
+  }
+
 
 
 
@@ -35,7 +56,7 @@ class CapacityController extends Controller
           'dev' => 'Capacity fetched succsefully!',
           'data' => $current
         ]);
-      } 
+      }
     } catch (Exception $e) {
       http_response_code(500);
       echo json_encode([
@@ -45,10 +66,5 @@ class CapacityController extends Controller
         'data' => null
       ]);
     }
-  }
-
-
-  public function updateCapacity()
-  {
   }
 }

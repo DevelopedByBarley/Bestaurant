@@ -38,20 +38,12 @@ class ReservationController extends Controller
 
       $searchResult = $this->Reservation->getAllReservationsByMultipleQuery($date, $category, $search, $sort, $order);
 
-      $reservations = $this->Model->paginate(
-        $searchResult,
-        2,
-        $date,
-        function () {
-        }
-      );
+      $reservations = $this->Model->paginate($searchResult, 2);
 
       if (isset($searchResult) && $reservations['status'] === true) {
         http_response_code(200);
         echo json_encode([
           'status' => true,
-          'message' => "Foglalások lekérése sikeres!" ?? null,
-          'dev' => "Get reservations successfully!" ?? null,
           'data' => $reservations ?? null
         ]);
         return;
@@ -59,7 +51,6 @@ class ReservationController extends Controller
         http_response_code(500);
         echo json_encode([
           'status' => false,
-          'message' => 'Általános szerver  hiba. Kérjük próbálkozzon később',
           'dev' => $reservations['message']
         ]);
         return;
@@ -68,7 +59,6 @@ class ReservationController extends Controller
       http_response_code(500);
       echo json_encode([
         'status' => false,
-        'message' => 'Adatbázis műveleti hiba, kérjük próbálkozzon később.',
         'dev' => $e->getMessage()
       ]);
     }
@@ -224,7 +214,5 @@ class ReservationController extends Controller
         'dev' => $e->getMessage()
       ]);
     }
-
-
   }
 }

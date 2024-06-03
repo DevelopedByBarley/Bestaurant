@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Model;
 use DateTime;
 use Exception;
+use InvalidArgumentException;
 use PDO;
 use PDOException;
 
@@ -22,6 +23,54 @@ class Capacity extends Model
       echo "An error occurred during the database operation capacities method in Model:" . $e->getMessage();
     }
   }
+
+  public function getAllCapacitiesByMultipleQuery($entity, $searched, $sort, $order)
+  {
+      $search = $searched ?? '';
+      $entity = $entity ?? '';
+  
+      // Engedélyezett oszlopnevek és sorrendezési irányok
+      $allowedEntities = ['id', 'capacity', 'date', 'created_at']; // Példa engedélyezett oszlopokra
+      $allowedSortColumns = ['id', 'capacity', 'date', 'created_at']; // Példa engedélyezett sorrendezési oszlopokra
+      $allowedOrderDirections = ['ASC', 'DESC'];
+  
+      // Ellenőrizzük az entitás, a sorrendezési oszlop és az irány érvényességét
+      if (($entity && !in_array($entity, $allowedEntities)) || ($sort && !in_array($sort, $allowedSortColumns)) || ($order && !in_array(strtoupper($order), $allowedOrderDirections))) {
+          throw new InvalidArgumentException("Invalid query parameters.");
+      }
+  
+      try {
+          // Alap SQL lekérdezés
+          $sql = "SELECT * FROM `capacities` WHERE `date` > CURDATE()";
+  
+          // Dinamikusan hozzáadjuk a WHERE feltételeket ha van keresés
+          if ($search !== '') {
+              $sql .= " AND `date` LIKE :searched";
+          }
+  
+          // Dinamikusan hozzáadjuk a ORDER BY feltételeket ha vannak
+          if ($sort && $order) {
+              $sql .= " ORDER BY `$sort` $order";
+          }
+  
+          $stmt = $this->Pdo->prepare($sql);
+  
+          // Bindeljük a keresési mintát, ha van keresés
+          if ($search !== '') {
+              $searchedPattern = "%" . $search . "%";
+              $stmt->bindParam(":searched", $searchedPattern, PDO::PARAM_STR);
+          }
+  
+          $stmt->execute();
+          $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  
+          return $data;
+      } catch (PDOException $e) {
+          throw new Exception("An error occurred during the database operation: " . $e->getMessage());
+      }
+  }
+  
+  
 
 
 

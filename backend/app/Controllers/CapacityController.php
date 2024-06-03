@@ -19,9 +19,18 @@ class CapacityController extends Controller
 
   public function getAllCapacities()
   {
+
+    $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_SPECIAL_CHARS) ?? '2023';
+    $sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
+    $order = filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS);
+    $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS) ?? '';
+
+
+    $sort = $sort ?? '';
+    $order = $order ?? '';
     try {
       $defaultCapacity = $this->Capacity->getDefaultCapacity();
-      $results = $this->Capacity->capacities();
+      $results = $this->Capacity->getAllCapacitiesByMultipleQuery('date', $search, $sort, $order);
       $exceptionsOfCapacity = $this->Model->paginate($results, 10);
 
       http_response_code(200);

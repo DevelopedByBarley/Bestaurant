@@ -16,7 +16,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
 
 
 
-  const renderArrowBySortDirection = () => {
+   const renderArrowBySortDirection = () => {
     if (sortConfig.direction === 'desc') {
       return <GoArrowDown />;
     } else if (sortConfig.direction === 'asc') {
@@ -48,12 +48,12 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
           const index = prevReservations.findIndex((prev) => prev.id === id);
           next[index].isAccepted = true;
           next[index].admin = data;
-          
+
           return next;
         });
         // Close the modal after accepting the reservation
       }).catch(() => toast.error('Általános szerver hiba!')).finally(() => {
-        
+
         setButtonPending(false);
         setShow(false);
       })
@@ -194,11 +194,7 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
               <h1 className="text-xl">Státusz: {Boolean(Number(currentReservation.isAccepted)) ? 'Elfogadva' : 'Függőben'}</h1>
             </div>
             <div className="mt-5 space-x-5 flex">
-              <button
-                className="btn-green"
-                onClick={() => {
-                  setModalStatus('accept');
-                }}>
+              <button className="btn-green" onClick={() => { setModalStatus('accept') }}>
                 Elfogadás
               </button>
               {Boolean(Number(currentReservation.isAccepted)) ? (

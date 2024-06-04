@@ -40,7 +40,7 @@ class Capacity extends Model
 
     try {
       // Alap SQL lekérdezés
-      $sql = "SELECT * FROM `capacities` WHERE `date` > CURDATE()";
+      $sql = "SELECT * FROM `capacities` WHERE `date` >= CURDATE()";
 
       // Dinamikusan hozzáadjuk a WHERE feltételeket ha van keresés
       if ($search !== '') {

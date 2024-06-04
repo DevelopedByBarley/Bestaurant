@@ -1,2 +1,1 @@
-2024-06-03
-  - Spinner 
+capacity query update

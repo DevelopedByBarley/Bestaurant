@@ -8,6 +8,8 @@ import Modal from '../../components/Modal';
 import Pagination from '../../components/Pagination';
 import { CapacitiesTable } from '../capacities/CapacitiesTable';
 import { SearchCapacities } from '../capacities/SearchCapacities';
+import Datepicker, { DateValueType } from 'react-tailwindcss-datepicker';
+import CSFR from '../../components/CSFR';
 
 export type CapacityTypes = {
   capacity: number,
@@ -30,9 +32,34 @@ const Capacities = () => {
     key: null,
     direction: null,
   });
+  const [calendar, setCalendar] = useState<DateValueType>({
+    startDate: null,
+    endDate: null
+  });
   const [search, setSearch] = useState('')
   const [modalStatus, setModalStatus] = useState<'default' | 'exception' | 'update' | 'delete' | ''>('');
 
+  const handleCalendarChange = (dates: DateValueType | null) => {
+    setCurrentPage(1);
+    setCalendar(dates);
+  };
+
+
+  const newDefaultCapacity = (e: React.FormEvent<HTMLFormElement>) => {
+
+    e.preventDefault();
+
+
+    const elements = e.currentTarget.elements as HTMLFormControlsCollection;
+
+    const newDefaultCapacity = {
+      csrf: (elements.namedItem("csrf") as HTMLInputElement)?.value,
+      date: calendar?.startDate,
+      capacity: (elements.namedItem("capacity") as HTMLInputElement)?.value,
+    }
+
+    console.log(newDefaultCapacity);
+  }
 
   const requestSort = (key: keyof CapacityTypes | null) => {
     let direction: 'asc' | 'desc' | null = 'desc';
@@ -78,7 +105,33 @@ const Capacities = () => {
           <div className="container mx-auto my-16">
             {modalStatus === 'default' && (
               <Modal show={show} setShow={setShow} title='Alap kapacitás beállítása'>
-                <div>Alap Kapacitás beállítása</div>
+                <form className='py-5' onSubmit={newDefaultCapacity}>
+                  <CSFR dependency={[]} />
+                  <div className='font-bold'>Alap Kapacitás beállítása, a jelenlegi érték <span className='bg-cyan-500  text-white p-1 rounded-full'>{defaultCapacity}</span></div>
+                  <label className='mt-7 block'>Kapacitás érvényességének kezdete</label>
+                  <div className="border border-neutral-900 rounded-xl xl:w-4/5 relative">
+                    <Datepicker
+                      useRange={false}
+                      asSingle={true}
+                      value={calendar}
+                      onChange={handleCalendarChange}
+                    />
+                  </div>
+                  <div>
+                    <label className='mt-7 block '>Új alap kapacitás értéke</label>
+                    <input
+                      type="number"
+                      min={1}
+                      required
+                      name="capacity"
+                      id="number-input"
+                      aria-describedby="helper-text-explanation"
+                      placeholder='Kapacitás értéke...'
+                      className=" xl:w-4/5 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    />
+                  </div>
+                  <button className="btn-green mt-5" type='submit'>Elküld</button>
+                </form>
               </Modal>
             )}
 
@@ -103,7 +156,7 @@ const Capacities = () => {
               <div className='p-5 my-16  shadow-transparent  text-center'>
                 <h1 className="font-bold text-3xl mt-10">Alap kapacitás: <span className=' bg-cyan-500 text-white p-3 rounded-full'>{defaultCapacity}</span></h1>
                 <button className='btn-dark mt-10' onClick={() => { setShow(true); setModalStatus('default'); }}>Alap Kapacitás beállítása</button>
-                <button className='btn-light mt-10' onClick={() => { setShow(true); setModalStatus('exception'); }}>Új kivétel hozzáadása</button>
+                <button className='btn-light xl:mt-10' onClick={() => { setShow(true); setModalStatus('exception'); }}>Új kivétel hozzáadása</button>
               </div>
             )}
             {capacities.length !== null && (
@@ -112,7 +165,7 @@ const Capacities = () => {
                   <SearchCapacities search={search} setSearch={setSearch} />
                   <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} numOfPage={numOfPage} />
                 </div>
-                <CapacitiesTable capacities={capacities} setCapacities={setCapacities} sortConfig={sortConfig} requestSort={requestSort} show={show} setShow={setShow} modalStatus={modalStatus} setModalStatus={setModalStatus}/>
+                <CapacitiesTable capacities={capacities} setCapacities={setCapacities} sortConfig={sortConfig} requestSort={requestSort} show={show} setShow={setShow} modalStatus={modalStatus} setModalStatus={setModalStatus} />
               </>
             )}
           </div>

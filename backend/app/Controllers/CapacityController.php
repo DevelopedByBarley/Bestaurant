@@ -20,7 +20,6 @@ class CapacityController extends Controller
   public function getAllCapacities()
   {
 
-    $date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_SPECIAL_CHARS) ?? '2023';
     $sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
     $order = filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS);
     $search = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS) ?? '';
@@ -47,7 +46,38 @@ class CapacityController extends Controller
     }
   }
 
+  public function destroy($vars)
+  {
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+      $id = (int)$vars['id'];
+  
+      // Validate and sanitize the ID
+      if (filter_var($id, FILTER_VALIDATE_INT) === false) {
+          http_response_code(400); // Bad Request
+          echo json_encode(['error' => 'Invalid ID provided']);
+          exit;
+      }
 
+    
+      try {
+          $this->Model->deleteRecordById('capacities', $id);
+
+          http_response_code(200);
+          echo json_encode([
+            'status' => true,
+            'deletedId' => $id
+          ]);
+      } catch (Exception $e) {
+          http_response_code(500);
+          echo json_encode([
+            'status' => false,
+            'dev' => $e->getMessage()
+          ]);
+          exit;
+      }
+  }
+  
 
 
   public function index($vars)

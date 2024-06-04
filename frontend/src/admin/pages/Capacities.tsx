@@ -32,6 +32,7 @@ const Capacities = () => {
     direction: null,
   });
   const [search, setSearch] = useState('')
+  const [modalStatus, setModalStatus] = useState<'default' | 'exception' | 'update' | 'delete' | ''>('');
 
 
   const requestSort = (key: keyof CapacityTypes | null) => {
@@ -52,9 +53,6 @@ const Capacities = () => {
     }
     const sortParam = sortConfig.key ? `&sort=${sortConfig.key}&order=${sortConfig.direction ? sortConfig.direction : ''}` : '';
     const searchParam = search !== '' ? `&search=${search}` : '';
-
-    console.log(searchParam)
-
 
 
     const url = `/api/capacity?offset=${currentPage}${sortParam}${searchParam}`
@@ -79,6 +77,17 @@ const Capacities = () => {
       {!loading ? (
         adminLevel && adminLevel > 1 ? (
           <div className="container mx-auto my-16">
+            {modalStatus === 'default' && (
+              <Modal show={show} setShow={setShow} title='Alap kapacitás beállítása'>
+                <div>Alap Kapacitás beállítása</div>
+              </Modal>
+            )}
+
+            {modalStatus === 'exception' && (
+              <Modal show={show} setShow={setShow} title='Kivétel hozzáadása'>
+                <div>Kapacitás beállítása</div>
+              </Modal>
+            )}
             <h1 className="text-4xl font-extrabold text-center">
               Kapacitás beállítása
               <span className="mx-3 inline-block relative bottom-1">
@@ -94,10 +103,8 @@ const Capacities = () => {
             {defaultCapacity !== null && (
               <div className='p-5 my-16  shadow-transparent  text-center'>
                 <h1 className="font-bold text-3xl mt-10">Alap kapacitás: <span className=' bg-cyan-500 text-white p-3 rounded-full'>{defaultCapacity}</span></h1>
-                <button className='btn-dark mt-5' onClick={() => setShow(true)}>Kapacitás beállítása</button>
-                <Modal show={show} setShow={setShow} title='Alap kapacitás beállítása'>
-                  <div>Kapacitás beállítása</div>
-                </Modal>
+                <button className='btn-dark mt-10' onClick={() => { setShow(true); setModalStatus('default'); }}>Alap Kapacitás beállítása</button>
+                <button className='btn-dark mt-10' onClick={() => { setShow(true); setModalStatus('exception'); }}>Új kivétel hozzáadása</button>
               </div>
             )}
             {capacities.length !== null && (
@@ -106,7 +113,7 @@ const Capacities = () => {
                   <SearchCapacities search={search} setSearch={setSearch} />
                   <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} numOfPage={numOfPage} />
                 </div>
-                <CapacitiesTable capacities={capacities} sortConfig={sortConfig} requestSort={requestSort} />
+                <CapacitiesTable capacities={capacities} setCapacities={setCapacities} sortConfig={sortConfig} requestSort={requestSort} show={show} setShow={setShow} modalStatus={modalStatus} setModalStatus={setModalStatus}/>
               </>
             )}
           </div>

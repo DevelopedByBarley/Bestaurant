@@ -89,7 +89,7 @@ class Model
       ];
     }
 
-    if($searchCondition) $searchCondition($offset, $numOfPage, $search);
+    if ($searchCondition) $searchCondition($offset, $numOfPage, $search);
 
     return [
       "status" => true,
@@ -164,6 +164,19 @@ class Model
       throw new Exception("An error occurred during the database operation in the selectAllByRecord method: " . $e->getMessage());
     }
   }
+
+
+  public function deleteRecordById($table, $id)
+  {
+    try {
+      $stmt = $this->Pdo->prepare("DELETE FROM `$table` WHERE `id` = :id");
+      $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+      $stmt->execute();
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the deleteRecordById method: " . $e->getMessage());
+    }
+  }
+
 
   public function insert()
   {

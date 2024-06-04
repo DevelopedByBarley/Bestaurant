@@ -18,6 +18,8 @@ class CapacityController extends Controller
 
   public function getAllCapacities()
   {
+    $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+    $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
 
     $sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_SPECIAL_CHARS);
     $order = filter_input(INPUT_GET, 'order', FILTER_SANITIZE_SPECIAL_CHARS);

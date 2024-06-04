@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Alert from '../../components/Alert';
-import axios from 'axios';
-import { authByToken } from '../../services/AuthService';
+import { authByToken, fetchAuthentication } from '../../services/AuthService';
 import Error from '../../pages/Error';
 import { toast } from 'react-toastify';
 import { Spinner } from '../../components/Spinner';
@@ -56,7 +55,7 @@ const Capacities = () => {
 
 
     const url = `/api/capacity?offset=${currentPage}${sortParam}${searchParam}`
-    axios.get(url)
+    fetchAuthentication.get(url)
       .then(res => {
         const { defaultCapacity, exceptions } = res.data;
         setDefaultCapacity(defaultCapacity.capacity);

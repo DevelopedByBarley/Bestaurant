@@ -104,7 +104,7 @@ const Capacities = () => {
               <div className='p-5 my-16  shadow-transparent  text-center'>
                 <h1 className="font-bold text-3xl mt-10">Alap kapacitás: <span className=' bg-cyan-500 text-white p-3 rounded-full'>{defaultCapacity}</span></h1>
                 <button className='btn-dark mt-10' onClick={() => { setShow(true); setModalStatus('default'); }}>Alap Kapacitás beállítása</button>
-                <button className='btn-dark mt-10' onClick={() => { setShow(true); setModalStatus('exception'); }}>Új kivétel hozzáadása</button>
+                <button className='btn-light mt-10' onClick={() => { setShow(true); setModalStatus('exception'); }}>Új kivétel hozzáadása</button>
               </div>
             )}
             {capacities.length !== null && (

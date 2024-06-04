@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Model;
-use DateTime;
 use Exception;
 use InvalidArgumentException;
 use PDO;
@@ -26,51 +25,77 @@ class Capacity extends Model
 
   public function getAllCapacitiesByMultipleQuery($entity, $searched, $sort, $order)
   {
-      $search = $searched ?? '';
-      $entity = $entity ?? '';
-  
-      // Engedélyezett oszlopnevek és sorrendezési irányok
-      $allowedEntities = ['id', 'capacity', 'date', 'created_at']; // Példa engedélyezett oszlopokra
-      $allowedSortColumns = ['id', 'capacity', 'date', 'created_at']; // Példa engedélyezett sorrendezési oszlopokra
-      $allowedOrderDirections = ['ASC', 'DESC'];
-  
-      // Ellenőrizzük az entitás, a sorrendezési oszlop és az irány érvényességét
-      if (($entity && !in_array($entity, $allowedEntities)) || ($sort && !in_array($sort, $allowedSortColumns)) || ($order && !in_array(strtoupper($order), $allowedOrderDirections))) {
-          throw new InvalidArgumentException("Invalid query parameters.");
+    $search = $searched ?? '';
+    $entity = $entity ?? '';
+
+    // Engedélyezett oszlopnevek és sorrendezési irányok
+    $allowedEntities = ['id', 'capacity', 'date', 'created_at']; // Példa engedélyezett oszlopokra
+    $allowedSortColumns = ['id', 'capacity', 'date', 'created_at']; // Példa engedélyezett sorrendezési oszlopokra
+    $allowedOrderDirections = ['ASC', 'DESC'];
+
+    // Ellenőrizzük az entitás, a sorrendezési oszlop és az irány érvényességét
+    if (($entity && !in_array($entity, $allowedEntities)) || ($sort && !in_array($sort, $allowedSortColumns)) || ($order && !in_array(strtoupper($order), $allowedOrderDirections))) {
+      throw new InvalidArgumentException("Invalid query parameters.");
+    }
+
+    try {
+      // Alap SQL lekérdezés
+      $sql = "SELECT * FROM `capacities` WHERE `date` > CURDATE()";
+
+      // Dinamikusan hozzáadjuk a WHERE feltételeket ha van keresés
+      if ($search !== '') {
+        $sql .= " AND `date` LIKE :searched";
       }
-  
-      try {
-          // Alap SQL lekérdezés
-          $sql = "SELECT * FROM `capacities` WHERE `date` > CURDATE()";
-  
-          // Dinamikusan hozzáadjuk a WHERE feltételeket ha van keresés
-          if ($search !== '') {
-              $sql .= " AND `date` LIKE :searched";
-          }
-  
-          // Dinamikusan hozzáadjuk a ORDER BY feltételeket ha vannak
-          if ($sort && $order) {
-              $sql .= " ORDER BY `$sort` $order";
-          }
-  
-          $stmt = $this->Pdo->prepare($sql);
-  
-          // Bindeljük a keresési mintát, ha van keresés
-          if ($search !== '') {
-              $searchedPattern = "%" . $search . "%";
-              $stmt->bindParam(":searched", $searchedPattern, PDO::PARAM_STR);
-          }
-  
-          $stmt->execute();
-          $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  
-          return $data;
-      } catch (PDOException $e) {
-          throw new Exception("An error occurred during the database operation: " . $e->getMessage());
+
+      if ($sort && $order) {
+        $sql .= " ORDER BY `$sort` $order";
       }
+
+      $stmt = $this->Pdo->prepare($sql);
+
+      if ($search !== '') {
+        $searchedPattern = "%" . $search . "%";
+        $stmt->bindParam(":searched", $searchedPattern, PDO::PARAM_STR);
+      }
+
+      $stmt->execute();
+      $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $data;
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation: " . $e->getMessage());
+    }
   }
-  
-  
+
+
+
+  public function updateExceptionCapacity($body, $id)
+  {
+
+    $date = isset($body['date']) ? filter_var($body['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+    $capacity = isset($body['capacity']) ? filter_var($body['capacity'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+
+
+    try {
+      $stmt = $this->Pdo->prepare("UPDATE `capacities` SET `date` = :date, `capacity` = :capacity WHERE `id` = :id");
+      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+      $stmt->bindParam(':capacity', $capacity, PDO::PARAM_INT);
+      $stmt->bindParam(':id', $id, PDO::PARAM_INT);  // Módosítva: PDO::PARAM_INT, ha az `id` integer
+      $stmt->execute();
+
+      $stmt = $this->Pdo->prepare("SELECT * FROM `capacities` WHERE `id` = :id");
+      $stmt->bindParam(':id', $id, PDO::PARAM_INT);  // Módosítva: PDO::PARAM_INT, ha az `id` integer
+      $stmt->execute();
+      $updatedRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      return $updatedRecord;
+    } catch (PDOException $e) {
+      throw new Exception("Hiba történt az adatbázis művelet során az updateCapacity metódusban: " . $e->getMessage());
+    }
+
+    
+  }
+
 
 
 

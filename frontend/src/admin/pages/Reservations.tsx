@@ -4,13 +4,13 @@ import Datepicker, { DateValueType } from 'react-tailwindcss-datepicker';
 import Pagination from '../../components/Pagination';
 import { ReservationsTypes } from '../../types/ReservationsTypes';
 
-import NoReservationHeader from '../components/reservations/NoReservationHeader';
 import ReservationsTable from '../components/reservations/ReservationsTable';
 import SearchBar from '../components/reservations/SearchBar';
 import Alert from '../../components/Alert';
 import { ModalContext } from '../../context/ModalContext';
 import Reservation from '../../pages/Reservation';
 import { Spinner } from '../../components/Spinner';
+import EmptyAlertHeader from '../../components/EmptyAlertHeader';
 
 const Reservations = () => {
   const { modal, setModal } = useContext(ModalContext);
@@ -144,7 +144,7 @@ const Reservations = () => {
             <div className="container w-full col-span-3 mb-10 mt-5">
               <div className="relative overflow-x-auto shadow-md sm:rounded-xl min-h-80">
                 {reservations.length === 0 ? (
-                  <NoReservationHeader />
+                  <EmptyAlertHeader  message='Jelenleg nincs egyetlen foglalás sem' />
                 ) : (
                   <ReservationsTable reservations={reservations} setReservations={setReservations} sortConfig={sortConfig} requestSort={requestSort} />
 

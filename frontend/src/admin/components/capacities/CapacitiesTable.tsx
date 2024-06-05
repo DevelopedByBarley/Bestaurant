@@ -1,13 +1,13 @@
 import { IoFilterOutline } from 'react-icons/io5';
 import { GoArrowDown, GoArrowUp } from 'react-icons/go';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import Modal from '../../components/Modal';
+import Modal from '../../../components/Modal';
 import Datepicker, { DateValueType } from 'react-tailwindcss-datepicker';
-import { fetchAuthentication } from '../../services/AuthService';
+import { fetchAuthentication } from '../../../services/AuthService';
 import { MoonLoader } from 'react-spinners';
-import CSFR from '../../components/CSFR';
+import CSFR from '../../../components/CSFR';
 import { toast } from 'react-toastify';
-import EmptyAlertHeader from '../../components/EmptyAlertHeader';
+import EmptyAlertHeader from '../../../components/EmptyAlertHeader';
 
 
 type CapacitiesTableTypes = {

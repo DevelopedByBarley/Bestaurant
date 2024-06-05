@@ -27,8 +27,6 @@ const Form = ({ calendar, selectedReservationDateRange, numOfGuests, interval, s
   const [mailErrors, setMailErrors] = useState<string[]>([]);
   const [phoneErrors, setPhoneErrors] = useState<string[]>([]);
 
-  console.log(location.pathname)
-
 
   const sendReservation = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

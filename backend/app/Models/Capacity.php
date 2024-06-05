@@ -80,11 +80,11 @@ class Capacity extends Model
       $stmt = $this->Pdo->prepare("UPDATE `capacities` SET `date` = :date, `capacity` = :capacity WHERE `id` = :id");
       $stmt->bindParam(':date', $date, PDO::PARAM_STR);
       $stmt->bindParam(':capacity', $capacity, PDO::PARAM_INT);
-      $stmt->bindParam(':id', $id, PDO::PARAM_INT);  // Módosítva: PDO::PARAM_INT, ha az `id` integer
+      $stmt->bindParam(':id', $id, PDO::PARAM_INT);
       $stmt->execute();
 
       $stmt = $this->Pdo->prepare("SELECT * FROM `capacities` WHERE `id` = :id");
-      $stmt->bindParam(':id', $id, PDO::PARAM_INT);  // Módosítva: PDO::PARAM_INT, ha az `id` integer
+      $stmt->bindParam(':id', $id, PDO::PARAM_INT);
       $stmt->execute();
       $updatedRecord = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -92,8 +92,6 @@ class Capacity extends Model
     } catch (PDOException $e) {
       throw new Exception("Hiba történt az adatbázis művelet során az updateCapacity metódusban: " . $e->getMessage());
     }
-
-    
   }
 
 
@@ -102,13 +100,27 @@ class Capacity extends Model
   public function getDefaultCapacity()
   {
     try {
-      $stmt = $this->Pdo->prepare("SELECT * FROM `default_capacities` WHERE `validFrom` <= CURDATE() ORDER BY `validFrom` DESC LIMIT 1");
+      $stmt = $this->Pdo->prepare("SELECT * FROM `default_capacities` WHERE `validFrom` >= CURDATE() ORDER BY `validFrom` ASC LIMIT 2");
       $stmt->execute();
-      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      self::deleteExpiredCapacities($result);
 
       return $result;
     } catch (PDOException $e) {
       throw new Exception("An error occurred during the database operation in the getDefaultCapacity method: " . $e->getMessage());
+    }
+  }
+
+
+  private function deleteExpiredCapacities($result)
+  {
+    try {
+      $stmt = $this->Pdo->prepare("DELETE  FROM `default_capacities` WHERE `validFrom` < :lastValid ORDER BY `validFrom` DESC LIMIT 1");
+      $stmt->bindParam(':lastValid', $result['validFrom'], PDO::PARAM_STR);
+      $stmt->execute();
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the deleteExpiredCapacities method: " . $e->getMessage());
     }
   }
 

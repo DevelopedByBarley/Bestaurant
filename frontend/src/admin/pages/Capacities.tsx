@@ -6,8 +6,8 @@ import { toast } from 'react-toastify';
 import { Spinner } from '../../components/Spinner';
 import Modal from '../../components/Modal';
 import Pagination from '../../components/Pagination';
-import { CapacitiesTable } from '../capacities/CapacitiesTable';
-import { SearchCapacities } from '../capacities/SearchCapacities';
+import { CapacitiesTable } from '../components/capacities/CapacitiesTable';
+import { SearchCapacities } from '../components/capacities/SearchCapacities';
 import Datepicker, { DateValueType } from 'react-tailwindcss-datepicker';
 import CSFR from '../../components/CSFR';
 
@@ -19,9 +19,18 @@ export type CapacityTypes = {
   is_default: boolean
 }
 
+export type DefaultCapacityTypes = {
+  capacity: number,
+  created_at: string,
+  date: string,
+  id: number,
+  validFrom: string
+}
+
 
 const Capacities = () => {
-  const [defaultCapacity, setDefaultCapacity] = useState(null);
+  const [defaultCapacity, setDefaultCapacity] = useState<DefaultCapacityTypes | null>(null);
+  const [nextCapacity, setNextCapacity] = useState<DefaultCapacityTypes | null>(null);
   const [capacities, setCapacities] = useState<CapacityTypes[]>([]);
   const [adminLevel, setAdminLevel] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,8 +42,8 @@ const Capacities = () => {
     direction: null,
   });
   const [calendar, setCalendar] = useState<DateValueType>({
-    startDate: null,
-    endDate: null
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
   });
   const [search, setSearch] = useState('')
   const [modalStatus, setModalStatus] = useState<'default' | 'exception' | 'update' | 'delete' | ''>('');
@@ -84,8 +93,10 @@ const Capacities = () => {
     const url = `/api/capacity?offset=${currentPage}${sortParam}${searchParam}`
     fetchAuthentication.get(url)
       .then(res => {
-        const { defaultCapacity, exceptions } = res.data;
-        setDefaultCapacity(defaultCapacity.capacity);
+        console.log(res.data)
+        const { defaultCapacity, nextDefaultCapacity, exceptions } = res.data;
+        setDefaultCapacity(defaultCapacity);
+        if (nextDefaultCapacity) setNextCapacity(nextDefaultCapacity);
         setCapacities(exceptions.pages);
         setNumOfPage(exceptions.numOfPage)
       })
@@ -107,18 +118,25 @@ const Capacities = () => {
               <Modal show={show} setShow={setShow} title='Alap kapacitás beállítása'>
                 <form className='py-5' onSubmit={newDefaultCapacity}>
                   <CSFR dependency={[]} />
-                  <div className='font-bold'>Alap Kapacitás beállítása, a jelenlegi érték <span className='bg-cyan-500  text-white p-1 rounded-full'>{defaultCapacity}</span></div>
-                  <label className='mt-7 block'>Kapacitás érvényességének kezdete</label>
+                  <div className='font-bold'>Alap Kapacitás beállítása, a jelenlegi érték <span className='bg-cyan-500  text-white py-2 px-4 rounded-full'>{defaultCapacity ? defaultCapacity.capacity : ''}</span></div>
+                  {nextCapacity?.capacity && (
+                    <div className='mt-2'>
+                      Soron következő kapacitás érvényességének kezdete: <span className='text-cyan-500 font-bold  text-lg underline'>{nextCapacity?.validFrom} </span> <br /> amely értéke: <span className='text-cyan-500 font-bold  text-lg  underline'> {nextCapacity.capacity}</span>
+                    </div>
+                  )}
+
+                  <label className='mt-7 mb-1 block'>Új alap kapacitás érvényességének kezdete</label>
                   <div className="border border-neutral-900 rounded-xl xl:w-4/5 relative">
                     <Datepicker
                       useRange={false}
                       asSingle={true}
                       value={calendar}
+                      minDate={new Date()}
                       onChange={handleCalendarChange}
                     />
                   </div>
                   <div>
-                    <label className='mt-7 block '>Új alap kapacitás értéke</label>
+                    <label className='mt-7 mb-1 block '>Új alap kapacitás értéke</label>
                     <input
                       type="number"
                       min={1}
@@ -152,9 +170,9 @@ const Capacities = () => {
               </span>
             </h1>
 
-            {defaultCapacity !== null && (
+            {defaultCapacity && defaultCapacity.capacity !== null && (
               <div className='p-5 my-16  shadow-transparent  text-center'>
-                <h1 className="font-bold text-3xl mt-10">Alap kapacitás: <span className=' bg-cyan-500 text-white p-3 rounded-full'>{defaultCapacity}</span></h1>
+                <h1 className="font-bold text-3xl mt-10">Alap kapacitás: <span className=' bg-cyan-500 text-white px-5 py-2 rounded-full'>{defaultCapacity.capacity}</span></h1>
                 <button className='btn-dark mt-10' onClick={() => { setShow(true); setModalStatus('default'); }}>Alap Kapacitás beállítása</button>
                 <button className='btn-light xl:mt-10' onClick={() => { setShow(true); setModalStatus('exception'); }}>Új kivétel hozzáadása</button>
               </div>

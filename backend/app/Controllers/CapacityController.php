@@ -29,13 +29,14 @@ class CapacityController extends Controller
     $sort = $sort ?? '';
     $order = $order ?? '';
     try {
-      $defaultCapacity = $this->Capacity->getDefaultCapacity();
+      $defaultCapacities= $this->Capacity->getDefaultCapacity();
       $results = $this->Capacity->getAllCapacitiesByMultipleQuery('date', $search, $sort, $order);
       $exceptionsOfCapacity = $this->Model->paginate($results, 10);
 
       http_response_code(200);
       echo json_encode([
-        "defaultCapacity" => $defaultCapacity,
+        "defaultCapacity" => $defaultCapacities[0],
+        "nextDefaultCapacity" => $defaultCapacities[1] ?? null,
         "exceptions" => $exceptionsOfCapacity
       ]);
     } catch (Exception $e) {

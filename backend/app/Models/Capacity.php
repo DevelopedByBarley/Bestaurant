@@ -10,6 +10,29 @@ use PDOException;
 
 class Capacity extends Model
 {
+  public function setDefaultCapacityIfItEmpty()
+  {
+    try {
+      $stmt = $this->Pdo->prepare("SELECT COUNT(*) as count FROM current_capacities");
+      $stmt->execute();
+      $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      $count =  $result['count'];
+      $body = [
+        'validFrom' => date('Y-d-m', time()),
+        'capacity' => 10
+      ];
+
+      if ($count === 0) {
+        self::storeDefaultCapacity($body);
+        return;
+      }
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the isCurrentCapacitiesTableEmpty method: " . $e->getMessage());
+      return false;
+    }
+  }
+
   public function capacities()
   {
     try {
@@ -104,7 +127,11 @@ class Capacity extends Model
       $stmt->execute();
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      self::deleteExpiredCapacities($result);
+      $latest = isset($result[0]) ? $result[0] : null;;
+
+      if ($latest) {
+        self::deleteExpiredCapacities($latest);
+      }
 
       return $result;
     } catch (PDOException $e) {
@@ -115,8 +142,9 @@ class Capacity extends Model
 
   private function deleteExpiredCapacities($result)
   {
+
     try {
-      $stmt = $this->Pdo->prepare("DELETE  FROM `default_capacities` WHERE `validFrom` < :lastValid ORDER BY `validFrom` DESC LIMIT 1");
+      $stmt = $this->Pdo->prepare("DELETE  FROM `default_capacities` WHERE `validFrom` < :lastValid");
       $stmt->bindParam(':lastValid', $result['validFrom'], PDO::PARAM_STR);
       $stmt->execute();
     } catch (PDOException $e) {
@@ -125,18 +153,41 @@ class Capacity extends Model
   }
 
 
-  public function addDefaultCapacity()
+  public function storeDefaultCapacity($body)
   {
-    $currDate = date('Y-m-d');
-    $validFrom = date('Y-m-d', strtotime($currDate . ' +1 day'));
-    $capacity = filter_var($body["capacity"] ?? '', FILTER_SANITIZE_NUMBER_INT);
+    try {
+      $validFrom = isset($body['date']) ? filter_var($body['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+      $capacity = isset($body['capacity']) ? filter_var($body['capacity'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
 
-    $stmt = $this->Pdo->prepare("INSERT INTO `default_capacities` (`capacity`, `createdAt`, `validFrom`) VALUES (:capacity, :createdAt, :validFrom)");
 
-    $stmt->bindParam(':capacity', $capacity, PDO::PARAM_INT);
-    $stmt->bindParam(':createdAt', $currDate, PDO::PARAM_STR);
-    $stmt->bindParam(':validFrom', $validFrom, PDO::PARAM_STR);
+      $stmt = $this->Pdo->prepare("INSERT INTO `default_capacities` (`id`, `capacity`, `createdAt`, `validFrom`) VALUES (NULL, :capacity, CURDATE(), :validFrom);");
 
-    $stmt->execute();
+      $stmt->bindParam(':capacity', $capacity, PDO::PARAM_INT);
+      $stmt->bindParam(':validFrom', $validFrom, PDO::PARAM_STR);
+
+      $stmt->execute();
+
+      return $this->Pdo->lastInsertId();
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the storeDefaultCapacity method: " . $e->getMessage());
+    }
+  }
+
+  public function updateNextDefaultCapacity($body, $id)
+  {
+    try {
+      $validFrom = isset($body['date']) ? filter_var($body['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+      $capacity = isset($body['capacity']) ? filter_var($body['capacity'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+
+      $stmt = $this->Pdo->prepare("UPDATE `default_capacities` SET `capacity` = :capacity, `validFrom` = :validFrom WHERE `default_capacities`.`id` = :id");
+
+      $stmt->bindParam(':capacity', $capacity, PDO::PARAM_INT);
+      $stmt->bindParam(':validFrom', $validFrom, PDO::PARAM_STR);
+      $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+      $stmt->execute();
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the updateNextDefaultCapacity method: " . $e->getMessage());
+    }
   }
 }

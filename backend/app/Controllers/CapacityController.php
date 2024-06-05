@@ -16,6 +16,52 @@ class CapacityController extends Controller
     parent::__construct();
   }
 
+
+
+
+  public function updateNextDefault($vars)
+  {
+    self::initializePOST();
+    $id = $vars['id'] ?? null;
+
+
+    try {
+      $this->Capacity->updateNextDefaultCapacity($_POST, $id);
+      $updated = $this->Model->show('default_capacities', $id);
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'updated' => $updated
+      ]);
+    } catch (Exception $e) {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'dev' => $e->getMessage()
+      ]);
+    }
+  }
+
+  public function storeDefault()
+  {
+    self::initializePOST();
+    try {
+
+      $lastInsertedId = $this->Capacity->storeDefaultCapacity($_POST);
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'lastInsertedId' => $lastInsertedId
+      ]);
+    } catch (Exception $e) {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'dev' => $e->getMessage()
+      ]);
+    }
+  }
+
   public function getAllCapacities()
   {
     $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
@@ -29,13 +75,13 @@ class CapacityController extends Controller
     $sort = $sort ?? '';
     $order = $order ?? '';
     try {
-      $defaultCapacities= $this->Capacity->getDefaultCapacity();
+      $defaultCapacities = $this->Capacity->getDefaultCapacity();
       $results = $this->Capacity->getAllCapacitiesByMultipleQuery('date', $search, $sort, $order);
       $exceptionsOfCapacity = $this->Model->paginate($results, 10);
 
       http_response_code(200);
       echo json_encode([
-        "defaultCapacity" => $defaultCapacities[0],
+        "defaultCapacity" => $defaultCapacities[0] ?? null,
         "nextDefaultCapacity" => $defaultCapacities[1] ?? null,
         "exceptions" => $exceptionsOfCapacity
       ]);
@@ -50,10 +96,10 @@ class CapacityController extends Controller
 
   public function destroy($vars)
   {
-    $this->initializePOST();
+    self::initializePOST();
     $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
     $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
-  
+
     $this->CSFRToken->check();
 
 
@@ -88,7 +134,7 @@ class CapacityController extends Controller
 
   public function updateExceptionCapacity($vars)
   {
-    $this->initializePOST();
+    self::initializePOST();
     $this->CSFRToken->check();
     $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
     $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
@@ -127,8 +173,10 @@ class CapacityController extends Controller
     try {
       $date = isset($vars['date']) ? filter_var($vars['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '');
-      $default = $this->Capacity->getDefaultCapacity();
+      $default = $this->Capacity->getDefaultCapacity()[0]; // 0 index is the latest default capacity!!
+
       $current = !empty($exception) ? $exception[0]['capacity'] : ($default ? $default['capacity'] : null);
+
       if ($current !== null) {
         http_response_code(200);
         echo json_encode([

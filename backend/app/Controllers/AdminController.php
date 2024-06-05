@@ -4,26 +4,17 @@ namespace App\Controllers;
 
 use App\Controllers\Controller;
 use App\Models\Admin;
-use App\Models\Capacity;
-use App\Models\Holiday;
-use App\Models\Reservation;
 use DateTime;
 use Exception;
-use PDO;
 
 class AdminController extends Controller
 {
   private $Admin;
-  private $Reservation;
-  private $Capacity;
-  private $Holiday;
+
 
   public function __construct()
   {
     $this->Admin = new Admin();
-    $this->Reservation = new Reservation();
-    $this->Capacity = new Capacity();
-    $this->Holiday = new Holiday();
     parent::__construct();
   }
 

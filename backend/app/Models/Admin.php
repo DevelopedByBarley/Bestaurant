@@ -23,7 +23,6 @@ class Admin extends Model
       $stmt->execute();
     } catch (PDOException $e) {
       throw new Exception("An error occurred during the database operation in the storeAdmin method: " . $e->getMessage());
-      exit;
     }
   }
 

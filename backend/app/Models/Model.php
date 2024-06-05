@@ -32,6 +32,8 @@ class Model
   }
 
 
+  
+
   public function searchBySingleEntity($table, $entity, $searched, $searchDefault)
   {
     $search = $searched ?? $searchDefault;
@@ -177,12 +179,6 @@ class Model
     }
   }
 
-
-  public function insert()
-  {
-  }
-
-  public function join()
-  {
-  }
+  
+  
 }

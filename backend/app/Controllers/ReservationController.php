@@ -70,7 +70,7 @@ class ReservationController extends Controller
       self::initializePOST();
       $date = isset($_POST['date']) ? filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
       $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '')[0]['capacity'] ?? null;
-      $default = $this->Capacity->getDefaultCapacity()['capacity'];
+      $default = $this->Capacity->getDefaultCapacity()[0]['capacity'];
       $current = !empty($exception) ? $exception : $default;
 
       $reservations = $this->Reservation->reservations($_POST, $current);

@@ -40,7 +40,6 @@ const Reservation = () => {
       axios.post('/api/reservation', reservationData)
         .then(res => {
           const { data } = res.data;
-          console.log(res);
           if (res.data.isHoliday) {
             toast.info(res.data.message);
             return;

@@ -25,7 +25,6 @@ const Navbar = () => {
     }
   }, [isLoggedIn])
 
-  console.log(adminLevel)
 
   if (!isLoggedIn) {
     return null;

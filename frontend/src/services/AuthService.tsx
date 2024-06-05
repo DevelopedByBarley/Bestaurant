@@ -19,7 +19,6 @@ export const fetchAuthentication = axios.create();
 fetchAuthentication.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null;
-    console.log(accessToken);
     if (!accessToken) {
       return config;
     }
@@ -59,7 +58,6 @@ fetchAuthentication.interceptors.response.use(
       .then((res) => {
 
         const accessToken = res.data.accessToken;
-        console.log(accessToken);
         if (!accessToken) {
           localStorage.removeItem('accessToken');
           window.location.href = '/admin';

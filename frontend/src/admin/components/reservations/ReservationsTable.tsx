@@ -40,7 +40,6 @@ const ReservationsTable = ({ reservations, setReservations, sortConfig, requestS
       }
 
       fetchAuthentication.post('/api/reservation/accept/' + id, accept).then((res) => {
-        console.log(res.data)
         const { message, data } = res.data;
         toast.success(message);
         setReservations((prevReservations) => {

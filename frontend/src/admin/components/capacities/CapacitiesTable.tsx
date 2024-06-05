@@ -53,7 +53,6 @@ export const CapacitiesTable = ({ capacities, setCapacities, sortConfig, request
 
     const handleCalendarChange = (dates: DateValueType | null) => {
         setCalendar(dates);
-        console.log(dates)
     }
 
     const deleteCapacityException = (e: React.FormEvent<HTMLFormElement>) => {
@@ -70,8 +69,6 @@ export const CapacitiesTable = ({ capacities, setCapacities, sortConfig, request
         fetchAuthentication.post(`/api/capacity/delete/${currentCapacity ? currentCapacity.id : ''}`, deleted).then(res => {
             setButtonLoading(true);
             const { deletedId } = res.data;
-            console.log(typeof deletedId);
-            console.log(typeof capacities[0].id);
 
             setCapacities(prevCapacities => prevCapacities.filter(capacity => Number(capacity.id) !== deletedId));
             setShow(false);

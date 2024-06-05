@@ -37,7 +37,6 @@ export const minLength = (e: React.FormEvent<HTMLInputElement>, length: number, 
 export const validateEmail = (e: React.FormEvent<HTMLInputElement>, setErrors: SetErrorsFunction) => {
   const email = e.currentTarget.value;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Példa: egyszerű e-mail cím validációs regex
-  console.log(email);
   if (!emailRegex.test(email)) {
     (e.currentTarget as HTMLInputElement).setCustomValidity('Érvénytelen e-mail cím');
     setErrors(prev => {

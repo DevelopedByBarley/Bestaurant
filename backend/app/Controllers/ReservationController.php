@@ -69,8 +69,8 @@ class ReservationController extends Controller
     try {
       self::initializePOST();
       $date = isset($_POST['date']) ? filter_var($_POST['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
-      $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '')[0]['capacity'] ?? null;
-      $default = $this->Capacity->getDefaultCapacity()[0]['capacity'];
+      $exception = $this->Model->searchBySingleEntity('capacities', 'date', $date, '')[0]['capacity'] ?? null; // ALAPVETŐEN fetchAllon van azért kell a [0]
+      $default = $this->Capacity->getDefaultCapacity()[0]['capacity']; // A [0] a latest 
       $current = !empty($exception) ? $exception : $default;
 
       $reservations = $this->Reservation->reservations($_POST, $current);

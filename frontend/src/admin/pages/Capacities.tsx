@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import Alert from '../../components/Alert';
 import { authByToken, fetchAuthentication } from '../../services/AuthService';
 import Error from '../../pages/Error';
 import { toast } from 'react-toastify';
@@ -10,6 +9,7 @@ import { SearchCapacities } from '../components/capacities/SearchCapacities';
 import { DateValueType } from 'react-tailwindcss-datepicker';
 import DefaultCapacitiesModal from '../components/capacities/DefaultCapacitiesModal';
 import ExceptionCapacityModal from '../components/capacities/ExceptionCapacityModal';
+import CapacitiesInfoAlert from '../components/capacities/CapacitiesInfoAlert';
 
 export type CapacityTypes = {
   capacity: number,
@@ -116,7 +116,7 @@ const Capacities = () => {
   }, [nextCapacity]);
 
 
-  
+
 
   return (
     <>
@@ -147,13 +147,7 @@ const Capacities = () => {
             <h1 className="text-4xl font-extrabold text-center">
               Kapacitás beállítása
               <span className="mx-3 inline-block relative bottom-1">
-                <Alert
-                  title="Info"
-                  content="Beállíthatja tetszés szerint az étterem kapacitását, azaz hogy az étterem hány vendéget tud fogadni.
-                  Ezt egy állandó kapacitás kereteiben is meg tudja adni ami egy állandó érték, illetve hozzá tud adni bizonyos
-                  napokra kivételeket is. Ez alapján az érték alapján figyeli a rendszer hogy egy intervallumot maximum hány ember foglalhat be.
-                  "
-                />
+                <CapacitiesInfoAlert />
               </span>
             </h1>
 

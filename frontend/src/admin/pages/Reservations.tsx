@@ -6,11 +6,11 @@ import { ReservationsTypes } from '../../types/ReservationsTypes';
 
 import ReservationsTable from '../components/reservations/ReservationsTable';
 import SearchBar from '../components/reservations/SearchBar';
-import Alert from '../../components/Alert';
 import { ModalContext } from '../../context/ModalContext';
 import Reservation from '../../pages/Reservation';
 import { Spinner } from '../../components/Spinner';
 import EmptyAlertHeader from '../../components/EmptyAlertHeader';
+import ReservationsInfoAlert from '../components/reservations/ReservationsInfoAlert';
 
 const Reservations = () => {
   const { modal, setModal } = useContext(ModalContext);
@@ -83,9 +83,7 @@ const Reservations = () => {
             <div className='col-span-3 text-center mb-10 flex items-center justify-center flex-col space-y-5'>
               <h1 className='font-extrabold text-4xl'>Összes foglalás
                 <span className='mx-3 inline-block relative bottom-1'>
-                  <Alert title='Info'
-                    content='Áttekintheti és kezelheti az étterem foglalásait. A rendszer értesítést küld a műveletek végrehajtásakor a foglaló e-mail címére!'
-                  />
+                  <ReservationsInfoAlert />
                 </span>
               </h1>
               <div className="flex">
@@ -144,7 +142,7 @@ const Reservations = () => {
             <div className="container w-full col-span-3 mb-10 mt-5">
               <div className="relative overflow-x-auto shadow-md sm:rounded-xl min-h-80">
                 {reservations.length === 0 ? (
-                  <EmptyAlertHeader  message='Jelenleg nincs egyetlen foglalás sem' />
+                  <EmptyAlertHeader message='Jelenleg nincs egyetlen foglalás sem' />
                 ) : (
                   <ReservationsTable reservations={reservations} setReservations={setReservations} sortConfig={sortConfig} requestSort={requestSort} />
 

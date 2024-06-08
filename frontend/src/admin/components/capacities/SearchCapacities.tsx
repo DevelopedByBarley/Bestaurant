@@ -4,8 +4,6 @@ type SearchCapacitiesTypes = {
     setSearch: React.Dispatch<React.SetStateAction<string>>,
 }
 
-
-
 export const SearchCapacities = ({ search, setSearch }: SearchCapacitiesTypes) => {
     return (
         <form className="w-screen lg:w-2/6 lg:mt-0 ">

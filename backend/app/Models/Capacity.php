@@ -36,7 +36,7 @@ class Capacity extends Model
   public function capacities()
   {
     try {
-      $stmt = $this->Pdo->prepare("SELECT * FROM `capacities` WHERE `date` >= CURDATE() AND `is_default` = 0 ORDER BY `date` ASC");
+      $stmt = $this->Pdo->prepare("SELECT * FROM `capacities` WHERE `date` >= CURDATE() ORDER BY `date` ASC");
       $stmt->execute();
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -170,6 +170,25 @@ class Capacity extends Model
       return $this->Pdo->lastInsertId();
     } catch (PDOException $e) {
       throw new Exception("An error occurred during the database operation in the storeDefaultCapacity method: " . $e->getMessage());
+    }
+  }
+
+  public function storeCapacityException($body) {
+    try {
+      $date = isset($body['date']) ? filter_var($body['date'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+      $capacity = isset($body['capacity']) ? filter_var($body['capacity'], FILTER_SANITIZE_SPECIAL_CHARS) : '';
+
+
+      $stmt = $this->Pdo->prepare("INSERT INTO `capacities` (`id`, `date`, `capacity`, `created_at`) VALUES (NULL, :date, :capacity, current_timestamp());");
+
+      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+      $stmt->bindParam(':capacity', $capacity, PDO::PARAM_INT);
+
+      $stmt->execute();
+
+      return $this->Pdo->lastInsertId();
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the storeCapacityException method: " . $e->getMessage());
     }
   }
 

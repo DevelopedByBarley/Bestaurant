@@ -11,7 +11,6 @@ const CSFR = ({ dependency = null }: CSFRType) => {
   useEffect(() => {
     axios.get('/token').then(res => setToken(res.headers['x-csrf-token']))
   }, [dependency]);
-  console.log(token)
   return <input type="hidden" name="csrf" value={token} />
 
 }

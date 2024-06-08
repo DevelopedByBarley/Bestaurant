@@ -233,5 +233,4 @@ export type CapacityTypes = {
     created_at: string,
     date: string,
     id: number,
-    is_default: boolean
 }

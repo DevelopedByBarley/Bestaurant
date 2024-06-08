@@ -54,8 +54,6 @@ const Reservation = () => {
           toast.error('Adatbázis műveleti hiba, kérjük próbálkozzon később.');
           console.error('Error while fetching free intervals:', error);
         });
-    } else {
-      console.log('not done');
     }
   }, [interval, numOfGuests, calendar]);
 

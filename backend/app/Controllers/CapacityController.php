@@ -17,15 +17,45 @@ class CapacityController extends Controller
   }
 
 
+  public function store()
+  {
+    self::initializePOST();
 
+    try {
+      $this->CSFRToken->check();
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
+      $id = $this->Capacity->storeCapacityException($_POST);
+
+      $capacity = [
+        "id" => $id,
+        "date" => $_POST['date'],
+        "capacity" => $_POST['capacity'],
+        "created_at" => date('Y-m-d', time())
+      ];
+
+      http_response_code(200);
+      echo json_encode([
+        'status' => true,
+        'exception' => $capacity
+      ]);
+    } catch (Exception $e) {
+      http_response_code(500);
+      echo json_encode([
+        'status' => false,
+        'dev' => $e->getMessage()
+      ]);
+    }
+  }
 
   public function updateNextDefault($vars)
   {
     self::initializePOST();
     $id = $vars['id'] ?? null;
-
-
+    
     try {
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
       $this->Capacity->updateNextDefaultCapacity($_POST, $id);
       $updated = $this->Model->show('default_capacities', $id);
       http_response_code(200);
@@ -46,7 +76,8 @@ class CapacityController extends Controller
   {
     self::initializePOST();
     try {
-
+      $accessToken = $this->Auth->getTokenFromHeaderOrSendErrorResponse();
+      $this->Auth->decodeJwtOrSendErrorResponse($accessToken);
       $lastInsertedId = $this->Capacity->storeDefaultCapacity($_POST);
       http_response_code(200);
       echo json_encode([

@@ -123,7 +123,7 @@ class Capacity extends Model
   public function getDefaultCapacity()
   {
     try {
-      $stmt = $this->Pdo->prepare("SELECT * FROM `default_capacities` WHERE `validFrom` >= CURDATE() ORDER BY `validFrom` ASC LIMIT 2");
+      $stmt = $this->Pdo->prepare("SELECT * FROM `default_capacities` WHERE `validFrom` <= CURDATE() ORDER BY `validFrom` ASC LIMIT 2");
       $stmt->execute();
       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

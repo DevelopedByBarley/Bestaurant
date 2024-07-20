@@ -99,7 +99,7 @@ const Reservation = () => {
 
         {
           page === 2 && (
-            <section className={`${page === 2 ? 'fade-top' : ''} max-h-[90vh] overflow-y-auto`}>
+            <section className={`${page === 2 ? 'fade-top' : ''} max-h-[60vh] overflow-y-auto pb-20`}>
               <ul className="grid w-full gap-4 grid-cols-3 md:grid-cols-7 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-10 p-3 my-10">
                 {freeDates ? freeDates.map((date, index) => {
                   return (

@@ -28,6 +28,10 @@ function registerRoutes(FastRoute\RouteCollector $router)
     require_once 'routes/reservation.php';
   });
 
+  $router->addGroup('/api/opening-hours', function (FastRoute\RouteCollector $r) {
+    require_once 'routes/opening.php';
+  });
+
   $router->addGroup('/api/capacity', function (FastRoute\RouteCollector $r) {
     require_once 'routes/capacity.php';
   });

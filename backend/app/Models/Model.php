@@ -153,6 +153,20 @@ class Model
       throw new Exception("An error occurred during the database operation in the selectByRecord method: " . $e->getMessage());
     }
   }
+  public function selectRecordByEntitySmallerOrEqual($table, $column, $value, $param)
+  {
+
+    try {
+      $stmt = $this->Pdo->prepare("SELECT * FROM {$table} WHERE {$column} <= :value");
+      $stmt->bindParam(':value', $value, $param);
+      $stmt->execute();
+      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+      return $result;
+    } catch (PDOException $e) {
+      throw new Exception("An error occurred during the database operation in the selectRecordByEntitySmallerOrEqual method: " . $e->getMessage());
+    }
+  }
 
   public function selectAllByRecord($table, $entity, $value, $param)
   {

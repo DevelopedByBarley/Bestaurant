@@ -47,6 +47,8 @@ const Capacities = () => {
     endDate: nextCapacity?.validFrom ? nextCapacity?.validFrom : new Date().toISOString().split('T')[0],
   });
 
+  
+
   // SORTING CAPACITY DATA 
 
   const requestSort = (key: keyof CapacityTypes | null) => {
@@ -80,6 +82,7 @@ const Capacities = () => {
     if (admin) {
       setAdminLevel(admin.level);
     }
+
     // MAKING PARAMS FOR QUERY STRING
     const sortParam = sortConfig.key ? `&sort=${sortConfig.key}&order=${sortConfig.direction ? sortConfig.direction : ''}` : '';
     const searchParam = search !== '' ? `&search=${search}` : '';
@@ -106,7 +109,6 @@ const Capacities = () => {
 
   // IF NEXT CAPACITY EXIST SET THE CALENDAR FOR THE NEXT CAPACITY FORM
   useEffect(() => {
-    console.log('Hello');
     if (nextCapacity?.validFrom) {
       setCalendar({
         startDate: new Date(nextCapacity.validFrom).toISOString().split('T')[0],

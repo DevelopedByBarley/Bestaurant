@@ -30,6 +30,8 @@ const DefaultCapacitiesModal = ({ show, setShow, nextCapacity, setNextCapacity, 
       capacity: (elements.namedItem("capacity") as HTMLInputElement)?.value,
     }
 
+
+
     if (nextCapacity) {
       fetchAuthentication.post(`/api/capacity/update/default/${nextCapacity.id}`, newDefaultCapacity).then(res => {
         const { updated } = res.data;
@@ -39,7 +41,7 @@ const DefaultCapacitiesModal = ({ show, setShow, nextCapacity, setNextCapacity, 
     } else {
 
       if (calendar?.startDate && defaultCapacity?.validFrom) {
-        if (calendar?.startDate <= defaultCapacity?.validFrom) return toast.warning('Az új alap kapacitás érvényességének kezdet nem lehet kissebb vagy egyenlő mint a soron következő kapacitásáé.');
+        if (calendar?.startDate <= defaultCapacity?.validFrom || calendar?.startDate === new Date().toISOString().split('T')[0]) return toast.warning('Az új alap kapacitás érvényességének kezdet nem lehet kissebb vagy egyenlő mint a soron következő kapacitásáé.');
       }
 
       fetchAuthentication.post('/api/capacity/new/default', newDefaultCapacity).then((res) => {

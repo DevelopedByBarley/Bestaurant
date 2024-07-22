@@ -31,7 +31,7 @@ const ExceptionCapacityModal = ({ show, setShow, capacities, setCapacities, hand
       return capacity.date === newCapacityException.date;
     });
 
-    if (newCapacityException.date === new Date().toISOString().split('T')[0]) return toast.warning('Erre a napra már nem adhat hozzá kivételt!');
+    if (newCapacityException.date && newCapacityException.date <= new Date().toISOString().split('T')[0]) return toast.warning('Erre a napra már nem adhat hozzá kivételt!');
     if (isCapacityExceptionExist) return toast.warning('Erre a napra már adott hozzá kivételt!');
 
     fetchAuthentication.post(`/api/capacity/new`, newCapacityException).then(res => {

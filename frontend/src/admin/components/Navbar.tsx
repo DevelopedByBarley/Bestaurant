@@ -77,6 +77,7 @@ const Navbar = () => {
               <Link to="/admin/opening" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Nyitvatartás</Link>
               <Link to="/admin/holidays" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kivételek és ünnepnapok</Link>
               <Link to="/admin/menu" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Étlap és itallap</Link>
+              <Link to="/admin/menu" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Üzenetek</Link>
               {adminLevel === 3 && <Link to="/admin/admin-list" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Adminok</Link>}
             </>
           )}

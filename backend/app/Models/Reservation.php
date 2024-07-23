@@ -225,6 +225,7 @@ class Reservation extends Model
 
   private function generateIntervalsByOpeningHours($date, $default_interval, $dayOfTheWeek, $reservation_interval, $capacity)
   {
+
     $time_intervals = [];
     $openTime = strtotime($date . " " . $dayOfTheWeek["open"]);
     $closeTime = strtotime($date . " " . $dayOfTheWeek["close"]);

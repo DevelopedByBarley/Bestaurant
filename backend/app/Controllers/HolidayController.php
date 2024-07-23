@@ -3,29 +3,28 @@
 namespace App\Controllers;
 
 use App\Controllers\Controller;
-use App\Models\Admin;
-use App\Models\OpeningHour;
-use DateTime;
+use App\Models\Holiday;
 use Exception;
 use PDO;
 
-class OpeningHoursController extends Controller
+class HolidayController extends Controller
 {
 
-  private $OpeningHour;
+  private $Holiday;
   public function __construct()
   {
-    $this->OpeningHour = new OpeningHour();
+    $this->Holiday = new Holiday();
     parent::__construct();
   }
 
-  public function getOpeningHours()
+  public function getHolidays()
   {
     try {
-      $opening_hours = $this->OpeningHour->all('opening_hours');
+      $results = $this->Model->all('holidays');
+      $holidays = $this->Model->paginate($results, 10, '', null);
       echo json_encode([
         'status' => true,
-        'openingHours' => $opening_hours
+        'holidays' => $holidays
       ]);
     } catch (Exception $e) {
       http_response_code(500);
@@ -36,15 +35,14 @@ class OpeningHoursController extends Controller
     }
   }
 
-  public function updateOpening($vars)
+  public function storeHoliday()
   {
     try {
       $this->initializePOST();
-      $this->OpeningHour->updateOpeningHour($vars['id'], $_POST);
-      $updated = $this->Model->selectByRecord('opening_hours', 'id', $vars['id'], PDO::PARAM_INT);
+      $this->Holiday->store($_POST);
       echo json_encode([
         'status' => true,
-        'updated' => $updated
+        'holiday' => ''
       ]);
     } catch (Exception $e) {
       http_response_code(500);

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Controller;
 use App\Models\Capacity;
 use Exception;
+use PDO;
 
 class CapacityController extends Controller
 {
@@ -109,10 +110,13 @@ class CapacityController extends Controller
       $defaultCapacities = $this->Capacity->getDefaultCapacity();
       $results = $this->Capacity->getAllCapacitiesByMultipleQuery('date', $search, $sort, $order);
       $exceptionsOfCapacity = $this->Model->paginate($results, 10);
+      $capacityException = $this->Model->selectByRecord('capacities', 'date', date('Y-m-d'), PDO::PARAM_STR);
+
+  
 
       http_response_code(200);
       echo json_encode([
-        "defaultCapacity" => $defaultCapacities[0] ?? null,
+        "defaultCapacity" => $capacityException ? $capacityException : $defaultCapacities[0],
         "nextDefaultCapacity" => $defaultCapacities[1] ?? null,
         "exceptions" => $exceptionsOfCapacity
       ]);

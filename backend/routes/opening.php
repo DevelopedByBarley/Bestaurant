@@ -7,4 +7,5 @@ use App\Services\AuthService;
 
 
 $r->addRoute('GET', '', [OpeningHoursController::class, 'getOpeningHours']);
+$r->addRoute('POST', '/update/{id}', [OpeningHoursController::class, 'updateOpening']);
 

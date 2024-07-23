@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from '../../components/Modal';
+import { authByToken, fetchAuthentication } from '../../services/AuthService';
+import { toast } from 'react-toastify';
 
 interface OpeningHour {
   id: string;
@@ -14,8 +16,18 @@ const Opening = () => {
   const [openingHours, setOpeningHours] = useState<OpeningHour[]>([]);
   const [openingModal, setOpeningModal] = useState(false);
   const [currentDay, setCurrentDay] = useState(0);
+  const [adminLevel, setAdminLevel] = useState(0);
 
 
+
+  useEffect(() => {
+    const admin = authByToken();
+
+    if (admin) {
+      setAdminLevel(admin.level ? admin.level :  0);
+    }
+
+  }, [])
 
   useEffect(() => {
     axios.get('/api/opening-hours')
@@ -23,6 +35,34 @@ const Opening = () => {
       .catch(err => console.error(err));
   }, []);
 
+
+  const sendUpdatedOpeningHours = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const elements = e.currentTarget.elements as HTMLFormControlsCollection;
+
+    const updatedOpeningHours = {
+      csrf: (elements.namedItem("csrf") as HTMLInputElement)?.value,
+      open: (elements.namedItem("open") as HTMLInputElement)?.value,
+      close: (elements.namedItem("close") as HTMLInputElement)?.value,
+    }
+
+    fetchAuthentication.post(`/api/opening-hours/update/${openingHours[currentDay].id}`, updatedOpeningHours).then(res => {
+      const { updated } = res.data;
+
+      setOpeningHours(prevOpeningHours =>
+        prevOpeningHours.map(openingHour =>
+          openingHour.id === updated.id ? updated : openingHour
+        )
+      );
+
+
+      toast.success('Nitvatartási idő sikeresen frissítve!');
+      setOpeningModal(false);
+    }).catch((err) => {
+      console.error(err);
+      toast.error('Általános szerver hiba!');
+    })
+  }
 
   return (
     <div className="mt-5  w-screen">
@@ -64,14 +104,14 @@ const Opening = () => {
                     </button>
                     <Modal show={openingModal} setShow={setOpeningModal} title='Nap frissítése' >
                       {openingHours[currentDay] && (
-                        <form>
+                        <form onSubmit={sendUpdatedOpeningHours}>
                           <div className="mb-4">
                             <label htmlFor="day" className="block text-gray-700">Nap</label>
                             <input
                               type="text"
                               id="day"
                               name="day"
-                              defaultValue={day.day}
+                              defaultValue={openingHours[currentDay].day}
                               className="mt-1 block w-full border border-gray-300 rounded-lg p-2"
                               disabled
                             />
@@ -82,7 +122,7 @@ const Opening = () => {
                               type="time"
                               id="open"
                               name="open"
-                              defaultValue={day.open}
+                              defaultValue={openingHours[currentDay].open}
                               className="mt-1 block w-full border border-gray-300 rounded-lg p-2"
                             />
                           </div>
@@ -92,10 +132,14 @@ const Opening = () => {
                               type="time"
                               id="close"
                               name="close"
-                              defaultValue={day.close}
+                              defaultValue={openingHours[currentDay].close}
 
                               className="mt-1 block w-full border border-gray-300 rounded-lg p-2"
                             />
+                          </div>
+                          <div className="mb-4">
+                            <label htmlFor="close" className="block text-gray-700">Zárás</label>
+
                           </div>
                           <div className="flex justify-end">
                             <button

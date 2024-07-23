@@ -66,7 +66,8 @@ const DefaultCapacitiesModal = ({ show, setShow, nextCapacity, setNextCapacity, 
   return (
     <Modal show={show} setShow={setShow} title={nextCapacity ? 'Alap kapacitás frissítése' : 'Alap kapacitás beállítása'}>
       <div className='font-bold'>
-        A jelenlegi érték <span className='bg-cyan-500  text-white py-2 px-4 rounded-full'>{defaultCapacity ? defaultCapacity.capacity : ''}</span> amely érvényes <span className='bg-cyan-500  text-white py-2 px-4 rounded-full'>{defaultCapacity ? defaultCapacity.validFrom : ''}</span>
+        A jelenlegi érték <span className='bg-cyan-500  text-white py-2 px-4 rounded-full'>{defaultCapacity ? defaultCapacity.capacity : ''}</span> amely érvényes <span className='bg-cyan-500  text-white py-2 px-4 rounded-full'>
+          {defaultCapacity && defaultCapacity.validFrom ? defaultCapacity.validFrom : 'A mai napra'}</span>
       </div>
       <form className='py-5' onSubmit={handleDefaultCapacity}>
         <CSFR dependency={[]} />

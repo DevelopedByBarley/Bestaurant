@@ -31,6 +31,9 @@ function registerRoutes(FastRoute\RouteCollector $router)
   $router->addGroup('/api/opening-hours', function (FastRoute\RouteCollector $r) {
     require_once 'routes/opening.php';
   });
+  $router->addGroup('/api/holidays', function (FastRoute\RouteCollector $r) {
+    require_once 'routes/holiday.php';
+  });
 
   $router->addGroup('/api/capacity', function (FastRoute\RouteCollector $r) {
     require_once 'routes/capacity.php';

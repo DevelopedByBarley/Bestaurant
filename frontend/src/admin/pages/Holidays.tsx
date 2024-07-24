@@ -5,6 +5,7 @@ import Pagination from '../../components/Pagination';
 import { AddHolidayModal } from '../components/holidays/AddHolidayModal';
 import { Spinner } from '../../components/Spinner';
 import { DeleteHolidayModal } from '../components/holidays/DeleteHolidayModal';
+import { Test } from '../components/Test';
 
 export type HolidayType = {
   id: number;
@@ -27,15 +28,15 @@ const Holidays = () => {
   const [showAddHolidayModal, setShowAddHolidayModal] = useState(false);
   const [showDeleteHolidayModal, setShowDeleteHolidayModal] = useState(false);
 
-  
+
   useEffect(() => {
     const admin = authByToken();
     if (admin) {
       setAdminLevel(admin.level ? admin.level : 0);
     }
-    
+
   }, [])
-  
+
   console.log(`Welcome admin, with level: ${adminLevel}`);
 
 
@@ -68,6 +69,8 @@ const Holidays = () => {
                     Hozzáadhat ünnepnapokat és kivételeket a nyitvatartáshoz, itt az adott napon megváltoztathatja a nyitvatartását az étteremnek vagy be is zárhatja azt.
                   </em>
                 </p>
+                <Test />
+
               </div>
               <div className="mb-14">
                 <div className="text-center">

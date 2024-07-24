@@ -37,7 +37,7 @@ class Reservation extends Model
       $searchedPattern = "%" . $search . "%";
 
       // Alap SQL lekérdezés
-      $sql = "SELECT * FROM `reservations` WHERE `date` LIKE :date";
+      $sql = "SELECT * FROM `reservations` WHERE `date` LIKE :date AND `date` >= CURDATE()";
 
       // Dinamikusan hozzáadjuk a WHERE feltételeket ha vannak
       if ($entity) {

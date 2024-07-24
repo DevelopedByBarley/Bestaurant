@@ -18,13 +18,26 @@ class Holiday extends Model
 
       return $results;
     } catch (PDOException $e) {
-      echo "An error occurred during the database operation:" . $e->getMessage();
+      echo "An error occurred during the database operation in holidays method:" . $e->getMessage();
       return false;
     }
   }
+  public function destroy($holiday_id)
+  {
+    try {
+      $stmt = $this->Pdo->prepare("DELETE  FROM `holidays` WHERE id = :holiday_id");
+      $stmt->bindParam(':holiday_id', $holiday_id, PDO::PARAM_INT);
+      $stmt->execute();
+
+      return $holiday_id;
+    } catch (PDOException $e) {
+      echo "An error occurred during the database operation in destroy method:" . $e->getMessage();
+      return false;
+    }
+  }
+
   public function store($body)
   {
-
     try {
       // Szerezd meg a bemeneteket és ellenőrizd, hogy léteznek-e, valamint alkalmazz sanitizálást
       $date = isset($body['date']) ? filter_var($body['date'], FILTER_SANITIZE_STRING) : '';
@@ -57,7 +70,7 @@ class Holiday extends Model
       ];
     } catch (PDOException $e) {
       // A kivételek kezelése
-      throw new Exception("An error occurred during the database operation: " . $e->getMessage());
+      throw new Exception("An error occurred during the database operation in store method: " . $e->getMessage());
     }
   }
 }

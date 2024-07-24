@@ -8,4 +8,4 @@ use App\Services\AuthService;
 
 $r->addRoute('GET', '', [HolidayController::class, 'getHolidays']);
 $r->addRoute('POST', '', [HolidayController::class, 'storeHoliday']);
-
+$r->addRoute('POST', '/delete/{id}', [HolidayController::class, 'deleteHoliday']);

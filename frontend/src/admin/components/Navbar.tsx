@@ -25,14 +25,9 @@ const Navbar = () => {
     }
   }, [isLoggedIn])
 
-
   if (!isLoggedIn) {
     return null;
   }
-
-
-
-
 
   const logout = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,20 +52,18 @@ const Navbar = () => {
     }
   };
 
-
-
-
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto py-4 px-8">
         <div className="flex items-center">
-          <a href="https://flowbite.com/" className="flex items-center space-x-3">
-            <img src="https://flowbite.com/docs/images/logo.svg" className="h-8" alt="Flowbite Logo" />
-            <span className="text-2xl font-semibold dark:text-white">Admin</span>
-          </a>
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl font-semibold dark:text-white">
+              <img className="w-10 h-10 rounded-full" src="/docs/images/people/profile-picture-5.jpg" alt="Rounded avatar" />
+            </span>
+          </div>
         </div>
         <div className="hidden xl:flex items-center space-x-10">
-          {adminLevel && adminLevel > 1 && (
+          {adminLevel && Number(adminLevel) > 1 && (
             <>
               <Link to="/admin/reservations" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Foglalások</Link>
               <Link to="/admin/capacities" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kapacitás</Link>
@@ -78,7 +71,7 @@ const Navbar = () => {
               <Link to="/admin/holidays" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kivételek és ünnepnapok</Link>
               <Link to="/admin/menu" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Étlap és itallap</Link>
               <Link to="/admin/menu" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Üzenetek</Link>
-              {adminLevel === 3 && <Link to="/admin/admin-list" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Adminok</Link>}
+              {Number(adminLevel) === 3 && <Link to="/admin/admin-list" className="text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Adminok</Link>}
             </>
           )}
 
@@ -88,7 +81,7 @@ const Navbar = () => {
             <CSFR dependency={[]} />
             <button type="submit" className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Kijelentkezés</button>
           </form>
-          {adminLevel && adminLevel > 1 && (
+          {adminLevel && Number(adminLevel) > 1 && (
             <button onClick={toggleMenu} className="xl:hidden text-gray-500 focus:outline-none">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isExpanded ? (
@@ -101,7 +94,7 @@ const Navbar = () => {
           )}
         </div>
       </div>
-      {adminLevel && adminLevel > 1 && (
+      {adminLevel && Number(adminLevel) > 1 && (
         <div className={`${isExpanded ? 'block' : 'hidden'} xl:hidden`}>
           <ul className="px-2 py-3">
             <li><Link to="/admin/reservations" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Foglalások</Link></li>
@@ -109,7 +102,7 @@ const Navbar = () => {
             <li><Link to="/admin/opening" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Nyitvatartás</Link></li>
             <li><Link to="/admin/holidays" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Kivételek és ünnepnapok</Link></li>
             <li><Link to="/admin/menu" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Étlap és itallap</Link></li>
-            {adminLevel === 3 && <li><Link to="/admin/admin-list" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Adminok</Link></li>}
+            {Number(adminLevel) === 3 && <li><Link to="/admin/admin-list" className="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">Adminok</Link></li>}
           </ul>
         </div>
       )}

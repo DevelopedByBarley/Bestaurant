@@ -39,10 +39,10 @@ class HolidayController extends Controller
   {
     try {
       $this->initializePOST();
-      $this->Holiday->store($_POST);
+      $holiday = $this->Holiday->store($_POST);
       echo json_encode([
         'status' => true,
-        'holiday' => ''
+        'holiday' => $holiday
       ]);
     } catch (Exception $e) {
       http_response_code(500);

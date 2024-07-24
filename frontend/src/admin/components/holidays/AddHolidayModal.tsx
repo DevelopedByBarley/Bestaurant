@@ -3,13 +3,16 @@ import Modal from '../../../components/Modal';
 import { fetchAuthentication } from '../../../services/AuthService';
 import { toast } from 'react-toastify';
 import Datepicker, { DateValueType } from 'react-tailwindcss-datepicker';
+import { HolidayType } from '../../pages/Holidays';
 
 type HolidayModalType = {
     show: boolean;
     setShow: (show: boolean) => void;
+    setHolidays: (updateFn: (prevHolidays: HolidayType[]) => HolidayType[]) => void;
 };
 
-export const AddHolidayModal = ({ show, setShow }: HolidayModalType) => {
+
+export const AddHolidayModal = ({ show, setShow, setHolidays }: HolidayModalType) => {
     const [isHoliday, setIsHoliday] = useState(0);
     const [calendar, setCalendar] = useState<DateValueType>({
         startDate: null,
@@ -40,7 +43,9 @@ export const AddHolidayModal = ({ show, setShow }: HolidayModalType) => {
         }
 
 
-        if(!newHoliday.date) {
+
+
+        if (!newHoliday.date) {
             return toast.warning('Dátum megadása kötelező.')
         }
 
@@ -50,13 +55,16 @@ export const AddHolidayModal = ({ show, setShow }: HolidayModalType) => {
 
 
         fetchAuthentication.post(`/api/holidays`, newHoliday).then(res => {
-            console.log(res.data);
+            const { holiday } = res.data;
+            setHolidays((prevHolidays: HolidayType[]) => [...prevHolidays, holiday]);
             toast.success('Soron következő kapacitás sikeresen frissítve!');
+
             setShow(false);
         }).catch((err) => {
             console.error(err);
             toast.error('Általános szerver hiba!');
-        })
+        });
+
     }
 
     return (

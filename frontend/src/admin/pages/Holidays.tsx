@@ -4,14 +4,15 @@ import axios from 'axios';
 import Pagination from '../../components/Pagination';
 import { AddHolidayModal } from '../components/holidays/AddHolidayModal';
 
-type HolidayType = {
+export type HolidayType = {
   id: number;
-  date: string;
+  csrf: string;
+  date: string | undefined;
   open: string;
   close: string;
+  isHoliday: number;
   description: string;
-
-}
+};
 
 const Holidays = () => {
 
@@ -132,7 +133,7 @@ const Holidays = () => {
         </table>
       </div>
 
-      <AddHolidayModal show={show} setShow={setShow} />
+      <AddHolidayModal show={show} setShow={setShow} setHolidays={setHolidays} />
 
     </div>
   )

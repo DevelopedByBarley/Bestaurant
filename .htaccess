@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+  RewriteCond %{REQUEST_URI} ^.*static/(.*)
+  RewriteRule ^(.*)$ frontend/build/static/%1 [END]
+
+  RewriteCond %{REQUEST_URI} ^.*manifest.json
+  RewriteRule ^(.*)$ frontend/build/manifest.json [END]
+
+  RewriteCond %{REQUEST_URI} ^.*logo192
+  RewriteRule ^(.*)$ frontend/build/logo192.png [END]
+
+  RewriteCond %{REQUEST_URI} ^.*favicon
+  RewriteRule ^(.*)$ frontend/public/favicon.ico [END]
+
+  RewriteCond %{REQUEST_URI} ^.*public/(.*)
+  RewriteRule ^(.*)$ backend/public/%1 [END]
+
+  # Minden más esetben az index.php-t futtasd le
+  RewriteRule (.*)  backend/index.php [QSA]
+</IfModule>

@@ -1,0 +1,40 @@
+.rating-modal {
+    .modal-body .form-check {
+        margin-bottom: 10px;
+        /* Adjust spacing between smiley icons */
+    }
+    
+    .form-check-input {
+        position: absolute;
+        opacity: 0;
+    }
+    
+    .form-check-label {
+        cursor: pointer;
+        display: inline-block;
+        position: relative;
+        padding: 5px;
+        /* Adjust padding around the smiley icon */
+    }
+    
+    .smiley-icon {
+        font-size: 40px;
+        /* Adjust the size as needed */
+        display: inline-block;
+        width: 60px;
+        /* Adjust the size as needed */
+        height: 60px;
+        /* Adjust the size as needed */
+        text-align: center;
+        line-height: 48px;
+        /* Vertical centering */
+        border-radius: 50%;
+        border: 10px solid transparent;
+        transition: border 0.3s ease;
+    }
+    
+    .form-check-input:checked+.form-check-label .smiley-icon {
+        border: 3px solid #6f42c1;
+        /* Adjust border color as needed */
+    }
+}

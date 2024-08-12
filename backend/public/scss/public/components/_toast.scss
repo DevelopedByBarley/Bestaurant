@@ -1,0 +1,23 @@
+#toast-root {
+    position: fixed;
+    right: 20px;
+    top: 100px;
+    z-index: 1056 !important;
+  
+    .toast {
+      position: relative;
+      animation: toastIn;
+      animation-duration: 0.5s;
+      cursor: pointer;
+    }
+  }
+  
+  @keyframes toastIn {
+    0% {
+      transform: translateX(200%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+  
